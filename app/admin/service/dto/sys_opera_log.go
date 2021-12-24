@@ -3,35 +3,30 @@ package dto
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
 
-type SysOperaLogSearch struct {
+type SysOperaLogGetPageReq struct {
 	dto.Pagination `search:"-"`
-
-	Title         string `form:"title" search:"type:contains;column:title;table:sys_opera_log" comment:"操作模块"`
-	Method        string `form:"method" search:"type:contains;column:method;table:sys_opera_log" comment:"函数"`
-	RequestMethod string `form:"requestMethod" search:"type:contains;column:request_method;table:sys_opera_log" comment:"请求方式"`
-	OperUrl       string `form:"operUrl" search:"type:contains;column:oper_url;table:sys_opera_log" comment:"访问地址"`
-	OperIp        string `form:"operIp" search:"type:exact;column:oper_ip;table:sys_opera_log" comment:"客户端ip"`
+	Title          string `form:"title" search:"type:contains;column:title;table:sys_opera_log" comment:"操作模块"`
+	Method         string `form:"method" search:"type:contains;column:method;table:sys_opera_log" comment:"函数"`
+	RequestMethod  string `form:"requestMethod" search:"type:contains;column:request_method;table:sys_opera_log" comment:"请求方式"`
+	OperUrl        string `form:"operUrl" search:"type:contains;column:oper_url;table:sys_opera_log" comment:"访问地址"`
+	OperIp         string `form:"operIp" search:"type:exact;column:oper_ip;table:sys_opera_log" comment:"客户端ip"`
+	Status         int    `form:"status" search:"type:exact;column:status;table:sys_opera_log" comment:"状态"`
+	BeginTime      string `form:"beginTime" search:"type:gte;column:ctime;table:sys_opera_log" comment:"创建时间"`
+	EndTime        string `form:"endTime" search:"type:lte;column:ctime;table:sys_opera_log" comment:"创建时间"`
+	SysOperaLogOrder
 }
 
-func (m *SysOperaLogSearch) GetNeedSearch() interface{} {
+type SysOperaLogOrder struct {
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_opera_log" form:"createdAtOrder"`
+}
+
+func (m *SysOperaLogGetPageReq) GetNeedSearch() interface{} {
 	return *m
-}
-
-func (m *SysOperaLogSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 type SysOperaLogControl struct {
@@ -56,22 +51,8 @@ type SysOperaLogControl struct {
 	UserAgent     string    `json:"userAgent" comment:"ua"`
 }
 
-func (s *SysOperaLogControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (s *SysOperaLogControl) Generate() (*system.SysOperaLog, error) {
-	return &system.SysOperaLog{
+func (s *SysOperaLogControl) Generate() (*models.SysOperaLog, error) {
+	return &models.SysOperaLog{
 		Model:         common.Model{Id: s.ID},
 		Title:         s.Title,
 		BusinessType:  s.BusinessType,
@@ -98,33 +79,19 @@ func (s *SysOperaLogControl) GetId() interface{} {
 	return s.ID
 }
 
-type SysOperaLogById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
+type SysOperaLogGetReq struct {
+	Id int `uri:"id"`
 }
 
-func (s *SysOperaLogById) GetId() interface{} {
-	if len(s.Ids) > 0 {
-		s.Ids = append(s.Ids, s.Id)
-		return s.Ids
-	}
+func (s *SysOperaLogGetReq) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysOperaLogById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(&s.Ids)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
+// SysOperaLogDeleteReq 功能删除请求参数
+type SysOperaLogDeleteReq struct {
+	Ids []int `json:"ids"`
 }
 
-func (s *SysOperaLogById) SetUpdateBy(id int) {
-
+func (s *SysOperaLogDeleteReq) GetId() interface{} {
+	return s.Ids
 }

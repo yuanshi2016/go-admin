@@ -3,33 +3,26 @@ package dto
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
-	common "go-admin/common/models"
 )
 
-type SysLoginLogSearch struct {
+type SysLoginLogGetPageReq struct {
 	dto.Pagination `search:"-"`
 	Username       string `form:"username" search:"type:exact;column:username;table:sys_login_log" comment:"用户名"`
 	Status         string `form:"status" search:"type:exact;column:status;table:sys_login_log" comment:"状态"`
 	Ipaddr         string `form:"ipaddr" search:"type:exact;column:ipaddr;table:sys_login_log" comment:"ip地址"`
 	LoginLocation  string `form:"loginLocation" search:"type:exact;column:login_location;table:sys_login_log" comment:"归属地"`
+	BeginTime      string `form:"beginTime" search:"type:gte;column:ctime;table:sys_login_log" comment:"创建时间"`
+	EndTime        string `form:"endTime" search:"type:lte;column:ctime;table:sys_login_log" comment:"创建时间"`
+	SysLoginLogOrder
 }
 
-func (m *SysLoginLogSearch) GetNeedSearch() interface{} {
+type SysLoginLogOrder struct {
+	CreatedAtOrder string `search:"type:order;column:created_at;table:sys_login_log" form:"createdAtOrder"`
+}
+
+func (m *SysLoginLogGetPageReq) GetNeedSearch() interface{} {
 	return *m
-}
-
-func (m *SysLoginLogSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
 }
 
 type SysLoginLogControl struct {
@@ -46,68 +39,19 @@ type SysLoginLogControl struct {
 	Msg           string    `json:"msg" comment:"信息"`
 }
 
-func (s *SysLoginLogControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
+type SysLoginLogGetReq struct {
+	Id int `uri:"id"`
 }
 
-func (s *SysLoginLogControl) Generate() (*system.SysLoginLog, error) {
-	return &system.SysLoginLog{
-		Model:         common.Model{Id: s.ID},
-		Username:      s.Username,
-		Status:        s.Status,
-		Ipaddr:        s.Ipaddr,
-		LoginLocation: s.LoginLocation,
-		Browser:       s.Browser,
-		Os:            s.Os,
-		Platform:      s.Platform,
-		LoginTime:     s.LoginTime,
-		Remark:        s.Remark,
-		Msg:           s.Msg,
-	}, nil
-}
-
-func (s *SysLoginLogControl) GetId() interface{} {
-	return s.ID
-}
-
-type SysLoginLogById struct {
-	Id  int   `uri:"id"`
-	Ids []int `json:"ids"`
-}
-
-func (s *SysLoginLogById) GetId() interface{} {
+func (s *SysLoginLogGetReq) GetId() interface{} {
 	return s.Id
 }
 
-func (s *SysLoginLogById) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(&s.Ids)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
+// SysLoginLogDeleteReq 功能删除请求参数
+type SysLoginLogDeleteReq struct {
+	Ids []int `json:"ids"`
 }
 
-func (s *SysLoginLogById) Generate() *SysLoginLogById {
-	cp := *s
-	return &cp
-}
-
-func (s *SysLoginLogById) GenerateM() (*system.SysLoginLog, error) {
-	return &system.SysLoginLog{}, nil
+func (s *SysLoginLogDeleteReq) GetId() interface{} {
+	return s.Ids
 }

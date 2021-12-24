@@ -1,15 +1,13 @@
 package dto
 
 import (
-	"github.com/gin-gonic/gin"
+	"go-admin/app/admin/models"
 
-	"github.com/go-admin-team/go-admin-core/sdk/api"
-	"go-admin/app/admin/models/system"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
 )
 
-type SysDictTypeSearch struct {
+type SysDictTypeGetPageReq struct {
 	dto.Pagination `search:"-"`
 	DictId         []int  `form:"dictId" search:"type:in;column:dict_id;table:sys_dict_type"`
 	DictName       string `form:"dictName" search:"type:icontains;column:dict_name;table:sys_dict_type"`
@@ -17,79 +15,75 @@ type SysDictTypeSearch struct {
 	Status         int    `form:"status" search:"type:exact;column:status;table:sys_dict_type"`
 }
 
-func (m *SysDictTypeSearch) GetNeedSearch() interface{} {
+type SysDictTypeOrder struct {
+	DictIdOrder string `search:"type:order;column:dict_id;table:sys_dict_type" form:"dictIdOrder"`
+}
+
+func (m *SysDictTypeGetPageReq) GetNeedSearch() interface{} {
 	return *m
 }
 
-func (m *SysDictTypeSearch) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBind(m)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
+type SysDictTypeInsertReq struct {
+	Id       int    `uri:"id"`
+	DictName string `json:"dictName"`
+	DictType string `json:"dictType"`
+	Status   int    `json:"status"`
+	Remark   string `json:"remark"`
+	common.ControlBy
+}
+
+func (s *SysDictTypeInsertReq) Generate(model *models.SysDictType) {
+	if s.Id != 0 {
+		model.ID = s.Id
 	}
-	return err
+	model.DictName = s.DictName
+	model.DictType = s.DictType
+	model.Status = s.Status
+	model.Remark = s.Remark
+
 }
 
-func (m *SysDictTypeSearch) Generate() dto.Index {
-	o := *m
-	return &o
-}
-
-type SysDictTypeControl struct {
-	Id int `uri:"id" comment:""` //
-
-	DictName string `json:"dictName" comment:""`
-
-	DictType string `json:"dictType" comment:""`
-
-	Status string `json:"status" comment:""`
-
-	Remark string `json:"remark" comment:""`
-}
-
-func (s *SysDictTypeControl) Bind(ctx *gin.Context) error {
-	log := api.GetRequestLogger(ctx)
-	err := ctx.ShouldBindUri(s)
-	if err != nil {
-		log.Debugf("ShouldBindUri error: %s", err.Error())
-		return err
-	}
-	err = ctx.ShouldBind(s)
-	if err != nil {
-		log.Debugf("ShouldBind error: %s", err.Error())
-	}
-	return err
-}
-
-func (s *SysDictTypeControl) Generate() dto.Control {
-	cp := *s
-	return &cp
-}
-
-func (s *SysDictTypeControl) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysDictType{
-
-		ID:       s.Id,
-		DictName: s.DictName,
-		DictType: s.DictType,
-		Status:   s.Status,
-		Remark:   s.Remark,
-	}, nil
-}
-
-func (s *SysDictTypeControl) GetId() interface{} {
+func (s *SysDictTypeInsertReq) GetId() interface{} {
 	return s.Id
 }
 
-type SysDictTypeById struct {
-	dto.ObjectById
+type SysDictTypeUpdateReq struct {
+	Id       int    `uri:"id"`
+	DictName string `json:"dictName"`
+	DictType string `json:"dictType"`
+	Status   int    `json:"status"`
+	Remark   string `json:"remark"`
+	common.ControlBy
 }
 
-func (s *SysDictTypeById) Generate() dto.Control {
-	cp := *s
-	return &cp
+func (s *SysDictTypeUpdateReq) Generate(model *models.SysDictType) {
+	if s.Id != 0 {
+		model.ID = s.Id
+	}
+	model.DictName = s.DictName
+	model.DictType = s.DictType
+	model.Status = s.Status
+	model.Remark = s.Remark
+
 }
 
-func (s *SysDictTypeById) GenerateM() (common.ActiveRecord, error) {
-	return &system.SysDictType{}, nil
+func (s *SysDictTypeUpdateReq) GetId() interface{} {
+	return s.Id
+}
+
+type SysDictTypeGetReq struct {
+	Id int `uri:"id"`
+}
+
+func (s *SysDictTypeGetReq) GetId() interface{} {
+	return s.Id
+}
+
+type SysDictTypeDeleteReq struct {
+	Ids []int `json:"ids"`
+	common.ControlBy
+}
+
+func (s *SysDictTypeDeleteReq) GetId() interface{} {
+	return s.Ids
 }

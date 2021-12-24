@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"fmt"
+	"go-admin/app/admin/models"
+	"go-admin/common"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,17 +11,15 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/api"
 	"github.com/go-admin-team/go-admin-core/sdk/config"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/captcha"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
-	"github.com/mojocn/base64Captcha"
 	"github.com/mssola/user_agent"
+	gaConfig "go-admin/config"
 
-	"go-admin/app/admin/models/system"
 	"go-admin/common/global"
 )
-
-var store = base64Captcha.DefaultMemStore
 
 func PayloadFunc(data interface{}) jwt.MapClaims {
 	if v, ok := data.(map[string]interface{}); ok {
@@ -48,6 +49,7 @@ func IdentityHandler(c *gin.Context) interface{} {
 	}
 }
 
+// Authenticator 获取token
 // @Summary 登陆
 // @Description 获取token
 // @Description LoginHandler can be used by clients to get a jwt token.
@@ -55,17 +57,18 @@ func IdentityHandler(c *gin.Context) interface{} {
 // @Description Reply will be of the form {"token": "TOKEN"}.
 // @Description dev mode：It should be noted that all fields cannot be empty, and a value of 0 can be passed in addition to the account password
 // @Description 注意：开发模式：需要注意全部字段不能为空，账号密码外可以传入0值
+// @Tags 登陆
 // @Accept  application/json
 // @Product application/json
-// @Param account body system.Login  true "account"
+// @Param account body Login  true "account"
 // @Success 200 {string} string "{"code": 200, "expire": "2019-08-07T12:45:48+08:00", "token": ".eyJleHAiOjE1NjUxNTMxNDgsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU2NTE0OTU0OH0.-zvzHvbg0A" }"
-// @Router /login [post]
+// @Router /api/v1/login [post]
 func Authenticator(c *gin.Context) (interface{}, error) {
 	log := api.GetRequestLogger(c)
 	db, err := pkg.GetOrm(c)
 	if err != nil {
 		log.Errorf("get db error, %s", err.Error())
-		response.Error(c, http.StatusInternalServerError, err, "数据库连接获取失败")
+		response.Error(c, 500, err, "数据库连接获取失败")
 		return nil, jwt.ErrFailedAuthentication
 	}
 
@@ -85,7 +88,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrMissingLoginValues
 	}
 	if config.ApplicationConfig.Mode != "dev" {
-		if !store.Verify(loginVals.UUID, loginVals.Code, true) {
+		if !captcha.Verify(loginVals.UUID, loginVals.Code, true) {
 			username = loginVals.Username
 			msg = "验证码错误"
 			status = "1"
@@ -115,8 +118,9 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l := make(map[string]interface{})
 
 	ua := user_agent.New(c.Request.UserAgent())
-	l["ipaddr"] = c.ClientIP()
-	l["loginLocation"] = pkg.GetLocation(c.ClientIP())
+	l["ipaddr"] = common.GetClientIP(c)
+	fmt.Println("gaConfig.ExtConfig.AMap.Key", gaConfig.ExtConfig.AMap.Key)
+	l["loginLocation"] = pkg.GetLocation(common.GetClientIP(c),gaConfig.ExtConfig.AMap.Key)
 	l["loginTime"] = pkg.GetCurrentTime()
 	l["status"] = status
 	l["remark"] = c.Request.UserAgent()
@@ -127,7 +131,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	l["username"] = username
 	l["msg"] = msg
 
-	q := sdk.Runtime.GetCachePrefix(c.Request.Host)
+	q := sdk.Runtime.GetMemoryQueue(c.Request.Host)
 	message, err := sdk.Runtime.GetStreamMessage("", global.LoginLog, l)
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())
@@ -140,6 +144,7 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 	}
 }
 
+// LogOut
 // @Summary 退出登录
 // @Description 获取token
 // LoginHandler can be used by clients to get a jwt token.
@@ -151,27 +156,6 @@ func LoginLogToDB(c *gin.Context, status string, msg string, username string) {
 // @Security Bearer
 func LogOut(c *gin.Context) {
 	LoginLogToDB(c, "2", "退出成功", user.GetUserName(c))
-	//var loginLog system.SysLoginLog
-	//loginLog.Ipaddr = c.ClientIP()
-	//location := pkg.GetLocation(c.ClientIP())
-	//loginLog.LoginLocation = location
-	//loginLog.LoginTime = pkg.GetCurrentTime()
-	//loginLog.Status = "2"
-	//loginLog.Remark = c.Request.UserAgent()
-	//browserName, browserVersion := ua.Browser()
-	//loginLog.Browser = browserName + " " + browserVersion
-	//loginLog.Os = ua.OS()
-	//loginLog.Platform = ua.Platform()
-	//loginLog.Username = user.GetUserName(c)
-	//loginLog.Msg = "退出成功"
-	//db, err := pkg.GetOrm(c)
-	//if err != nil {
-	//	log.Errorf("获取Orm失败, error:%s", err)
-	//}
-	//serviceLoginLog := service.SysLoginLog{}
-	//serviceLoginLog.Orm = db
-	//_ = serviceLoginLog.InsertSysLoginLog(loginLog.Generate())
-
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "退出成功",
@@ -182,14 +166,13 @@ func LogOut(c *gin.Context) {
 func Authorizator(data interface{}, c *gin.Context) bool {
 
 	if v, ok := data.(map[string]interface{}); ok {
-		u, _ := v["user"].(system.SysUser)
-		r, _ := v["role"].(system.SysRole)
+		u, _ := v["user"].(models.SysUser)
+		r, _ := v["role"].(models.SysRole)
 		c.Set("role", r.RoleName)
 		c.Set("roleIds", r.RoleId)
 		c.Set("userId", u.UserId)
 		c.Set("userName", u.Username)
 		c.Set("dataScope", r.DataScope)
-
 		return true
 	}
 	return false

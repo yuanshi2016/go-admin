@@ -2,7 +2,6 @@ package actions
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/go-admin-team/go-admin-core/logger"
@@ -34,7 +33,7 @@ func PermissionAction() gin.HandlerFunc {
 			p, err = newDataPermission(db, userId)
 			if err != nil {
 				log.Errorf("MsgID[%s] PermissionAction error: %s", msgID, err)
-				response.Error(c, http.StatusInternalServerError, err, "权限范围鉴定错误")
+				response.Error(c, 500, err, "权限范围鉴定错误")
 				c.Abort()
 				return
 			}
@@ -71,7 +70,7 @@ func Permission(tableName string, p *DataPermission) func(db *gorm.DB) *gorm.DB 
 		case "3":
 			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where dept_id = ? )", p.DeptId)
 		case "4":
-			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%"+pkg.IntToString(p.DeptId)+"%")
+			return db.Where(tableName+".create_by in (SELECT user_id from sys_user where sys_user.dept_id in(select dept_id from sys_dept where dept_path like ? ))", "%/"+pkg.IntToString(p.DeptId)+"/%")
 		case "5":
 			return db.Where(tableName+".create_by = ?", p.UserId)
 		default:
@@ -91,7 +90,7 @@ func getPermissionFromContext(c *gin.Context) *DataPermission {
 	return p
 }
 
-// PermissionForNoAction 提供非action写法数据范围约束
+// GetPermissionFromContext 提供非action写法数据范围约束
 func GetPermissionFromContext(c *gin.Context) *DataPermission {
 	return getPermissionFromContext(c)
 }

@@ -3,22 +3,22 @@ package service
 import (
 	"errors"
 
+	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
 
-	"go-admin/app/admin/models/system"
+	"go-admin/app/admin/models"
 	"go-admin/app/admin/service/dto"
 	cDto "go-admin/common/dto"
-	"go-admin/common/service"
 )
 
 type SysPost struct {
 	service.Service
 }
 
-// GetSysPostPage 获取SysPost列表
-func (e *SysPost) GetSysPostPage(c *dto.SysPostSearch, list *[]system.SysPost, count *int64) error {
+// GetPage 获取SysPost列表
+func (e *SysPost) GetPage(c *dto.SysPostPageReq, list *[]models.SysPost, count *int64) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	err = e.Orm.Model(&data).
 		Scopes(
@@ -28,16 +28,16 @@ func (e *SysPost) GetSysPostPage(c *dto.SysPostSearch, list *[]system.SysPost, c
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil {
-		e.Log.Errorf("db error:%s", err)
+		e.Log.Errorf("db error:%s \r", err)
 		return err
 	}
 	return nil
 }
 
-// GetSysPost 获取SysPost对象
-func (e *SysPost) GetSysPost(d *dto.SysPostById, model *system.SysPost) error {
+// Get 获取SysPost对象
+func (e *SysPost) Get(d *dto.SysPostGetReq, model *models.SysPost) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	db := e.Orm.Model(&data).
 		First(model, d.GetId())
@@ -54,13 +54,12 @@ func (e *SysPost) GetSysPost(d *dto.SysPostById, model *system.SysPost) error {
 	return nil
 }
 
-// InsertSysPost 创建SysPost对象
-func (e *SysPost) InsertSysPost(model *system.SysPost) error {
+// Insert 创建SysPost对象
+func (e *SysPost) Insert(c *dto.SysPostInsertReq) error {
 	var err error
-	var data system.SysPost
-
-	err = e.Orm.Model(&data).
-		Create(model).Error
+	var data models.SysPost
+	c.Generate(&data)
+	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -68,13 +67,14 @@ func (e *SysPost) InsertSysPost(model *system.SysPost) error {
 	return nil
 }
 
-// UpdateSysPost 修改SysPost对象
-func (e *SysPost) UpdateSysPost(c *system.SysPost) error {
+// Update 修改SysPost对象
+func (e *SysPost) Update(c *dto.SysPostUpdateReq) error {
 	var err error
-	var data system.SysPost
+	var model = models.SysPost{}
+	e.Orm.First(&model, c.GetId())
+	c.Generate(&model)
 
-	db := e.Orm.Model(&data).
-		Where(c.GetId()).Updates(c)
+	db := e.Orm.Save(&model)
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err
@@ -86,10 +86,10 @@ func (e *SysPost) UpdateSysPost(c *system.SysPost) error {
 	return nil
 }
 
-// RemoveSysPost 删除SysPost
-func (e *SysPost) RemoveSysPost(d *dto.SysPostById) error {
+// Remove 删除SysPost
+func (e *SysPost) Remove(d *dto.SysPostDeleteReq) error {
 	var err error
-	var data system.SysPost
+	var data models.SysPost
 
 	db := e.Orm.Model(&data).Delete(&data, d.GetId())
 	if db.Error != nil {

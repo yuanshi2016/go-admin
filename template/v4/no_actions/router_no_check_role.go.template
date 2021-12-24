@@ -4,22 +4,22 @@ import (
 	"github.com/gin-gonic/gin"
 	jwt "github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth"
 
-	"go-admin/app/{{.PackageName}}/apis/{{.ModuleName}}"
+	"go-admin/app/{{.PackageName}}/apis"
 )
 
 func init() {
 	routerCheckRole = append(routerCheckRole, register{{.ClassName}}Router)
 }
 
-// 需认证的路由代码
+// register{{.ClassName}}Router
 func register{{.ClassName}}Router(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
-	api := &{{.ModuleName}}.{{.ClassName}}{}
+	api := apis.{{.ClassName}}{}
 	r := v1.Group("/{{.ModuleName}}").Use(authMiddleware.MiddlewareFunc())
 	{
-		r.GET("", api.Get{{.ClassName}})
-		r.GET("/:id", api.Get{{.ClassName}})
-		r.POST("", api.Insert{{.ClassName}})
-		r.PUT("/:id", api.Update{{.ClassName}})
-		r.DELETE("", api.Delete{{.ClassName}})
+		r.GET("", api.GetPage)
+		r.GET("/:id", api.Get)
+		r.POST("", api.Insert)
+		r.PUT("/:id", api.Update)
+		r.DELETE("", api.Delete)
 	}
 }
