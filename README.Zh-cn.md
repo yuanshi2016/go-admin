@@ -74,9 +74,9 @@
 
 ### 轻松实现go-admin写出第一个应用 - 文档教程
 
-[步骤一 - 基础内容介绍](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial01.html)
+[步骤一 - 基础内容介绍](https://doc.zhangwj.com/guide/intro/tutorial01.html)
 
-[步骤二 - 实际应用 - 编写增删改查](http://doc.zhangwj.com/go-admin-site/guide/intro/tutorial02.html)
+[步骤二 - 实际应用 - 编写增删改查](https://doc.zhangwj.com/guide/intro/tutorial02.html)
 
 ### 手把手教你从入门到放弃 - 视频教程
 
@@ -167,10 +167,10 @@ cgo: exec gcc: exec: "gcc": executable file not found in %PATH%
 ``` bash
 # 首次配置需要初始化数据库资源信息
 # macOS or linux 下使用
-$ ./go-admin migrate -c=config/settings.dev.yml
+$ ./go-admin migrate -c config/settings.dev.yml
 
 # ⚠️注意:windows 下使用
-$ go-admin.exe migrate -c=config/settings.dev.yml
+$ go-admin.exe migrate -c config/settings.dev.yml
 
 
 # 启动项目，也可以用IDE进行调试
