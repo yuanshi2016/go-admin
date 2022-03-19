@@ -12,9 +12,6 @@ definitions:
         type: string
       oldPassword:
         type: string
-    required:
-    - newPassword
-    - oldPassword
     type: object
   dto.ResetSysUserPwdReq:
     properties:
@@ -27,9 +24,6 @@ definitions:
       userId:
         description: 用户ID
         type: integer
-    required:
-    - password
-    - userId
     type: object
   dto.RoleDataScopeReq:
     properties:
@@ -45,7 +39,14 @@ definitions:
     - dataScope
     - roleId
     type: object
-  dto.SysApiControl:
+  dto.SysApiDeleteReq:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.SysApiUpdateReq:
     properties:
       action:
         type: string
@@ -92,16 +93,14 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysDeptById:
+  dto.SysDeptDeleteReq:
     properties:
-      id:
-        type: integer
       ids:
         items:
           type: integer
         type: array
     type: object
-  dto.SysDeptControl:
+  dto.SysDeptInsertReq:
     properties:
       createBy:
         type: integer
@@ -135,11 +134,43 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysDictDataById:
+  dto.SysDeptUpdateReq:
     properties:
       createBy:
         type: integer
-      id:
+      deptId:
+        description: 编码
+        type: integer
+      deptName:
+        description: 部门名称
+        type: string
+      deptPath:
+        description: 路径
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      leader:
+        description: 负责人
+        type: string
+      parentId:
+        description: 上级部门
+        type: integer
+      phone:
+        description: 手机
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      status:
+        description: 状态
+        type: integer
+      updateBy:
+        type: integer
+    type: object
+  dto.SysDictDataDeleteReq:
+    properties:
+      createBy:
         type: integer
       ids:
         items:
@@ -148,7 +179,41 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysDictDataControl:
+  dto.SysDictDataGetAllResp:
+    properties:
+      label:
+        type: string
+      value:
+        type: string
+    type: object
+  dto.SysDictDataInsertReq:
+    properties:
+      createBy:
+        type: integer
+      cssClass:
+        type: string
+      default:
+        type: string
+      dictLabel:
+        type: string
+      dictSort:
+        type: integer
+      dictType:
+        type: string
+      dictValue:
+        type: string
+      isDefault:
+        type: string
+      listClass:
+        type: string
+      remark:
+        type: string
+      status:
+        type: integer
+      updateBy:
+        type: integer
+    type: object
+  dto.SysDictDataUpdateReq:
     properties:
       createBy:
         type: integer
@@ -177,7 +242,18 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysDictTypeControl:
+  dto.SysDictTypeDeleteReq:
+    properties:
+      createBy:
+        type: integer
+      ids:
+        items:
+          type: integer
+        type: array
+      updateBy:
+        type: integer
+    type: object
+  dto.SysDictTypeInsertReq:
     properties:
       createBy:
         type: integer
@@ -194,11 +270,33 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysLoginLogById:
+  dto.SysDictTypeUpdateReq:
     properties:
       createBy:
         type: integer
+      dictName:
+        type: string
+      dictType:
+        type: string
       id:
+        type: integer
+      remark:
+        type: string
+      status:
+        type: integer
+      updateBy:
+        type: integer
+    type: object
+  dto.SysLoginLogDeleteReq:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.SysMenuDeleteReq:
+    properties:
+      createBy:
         type: integer
       ids:
         items:
@@ -207,20 +305,7 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysMenuById:
-    properties:
-      createBy:
-        type: integer
-      id:
-        type: integer
-      ids:
-        items:
-          type: integer
-        type: array
-      updateBy:
-        type: integer
-    type: object
-  dto.SysMenuControl:
+  dto.SysMenuInsertReq:
     properties:
       action:
         description: 请求方式
@@ -283,10 +368,123 @@ definitions:
         description: 是否显示
         type: string
     type: object
-  dto.SysOperaLogById:
+  dto.SysMenuUpdateReq:
     properties:
+      action:
+        description: 请求方式
+        type: string
+      apis:
+        items:
+          type: integer
+        type: array
+      breadcrumb:
+        description: 是否面包屑
+        type: string
+      component:
+        description: 组件
+        type: string
+      createBy:
+        type: integer
+      icon:
+        description: 图标
+        type: string
+      isFrame:
+        description: 是否frame
+        type: string
+      menuId:
+        description: 编码
+        type: integer
+      menuName:
+        description: 菜单name
+        type: string
+      menuType:
+        description: 菜单类型
+        type: string
+      noCache:
+        description: 是否缓存
+        type: boolean
+      parentId:
+        description: 上级菜单
+        type: integer
+      path:
+        description: 路径
+        type: string
+      paths:
+        description: id路径
+        type: string
+      permission:
+        description: 权限编码
+        type: string
+      sort:
+        description: 排序
+        type: integer
+      sysApi:
+        items:
+          $ref: '#/definitions/models.SysApi'
+        type: array
+      title:
+        description: 显示名称
+        type: string
+      updateBy:
+        type: integer
+      visible:
+        description: 是否显示
+        type: string
+    type: object
+  dto.SysNetworkInsertReq:
+    properties:
+      blockUrl:
+        type: string
+      chainId:
+        type: string
+      createBy:
+        type: integer
+      ipfsBindDir:
+        type: string
+      ipfsCid:
+        type: string
+      ipfsIsPush:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      rpcUrl:
+        type: string
+      symbol:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  dto.SysNetworkUpdateReq:
+    properties:
+      blockUrl:
+        type: string
+      chainId:
+        type: string
+      createBy:
+        type: integer
       id:
         type: integer
+      ipfsBindDir:
+        type: string
+      ipfsCid:
+        type: string
+      ipfsIsPush:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      rpcUrl:
+        type: string
+      symbol:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  dto.SysOperaLogDeleteReq:
+    properties:
       ids:
         items:
           type: integer
@@ -341,16 +539,42 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysRoleById:
+  dto.SysPrivatekeyInsertReq:
     properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      isDel:
+        type: string
+      privatekey:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  dto.SysPrivatekeyUpdateReq:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
       id:
         type: integer
+      isDel:
+        type: string
+      privatekey:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  dto.SysRoleDeleteReq:
+    properties:
       ids:
         items:
           type: integer
         type: array
     type: object
-  dto.SysRoleControl:
+  dto.SysRoleInsertReq:
     properties:
       admin:
         type: boolean
@@ -398,7 +622,55 @@ definitions:
       updateBy:
         type: integer
     type: object
-  dto.SysUserControl:
+  dto.SysRoleUpdateReq:
+    properties:
+      admin:
+        type: boolean
+      createBy:
+        type: integer
+      dataScope:
+        type: string
+      deptIds:
+        items:
+          type: integer
+        type: array
+      flag:
+        description: 标记
+        type: string
+      menuIds:
+        items:
+          type: integer
+        type: array
+      remark:
+        description: 备注
+        type: string
+      roleId:
+        description: 角色编码
+        type: integer
+      roleKey:
+        description: 角色代码
+        type: string
+      roleName:
+        description: 角色名称
+        type: string
+      roleSort:
+        description: 角色排序
+        type: integer
+      status:
+        description: 状态
+        type: string
+      sysDept:
+        items:
+          $ref: '#/definitions/models.SysDept'
+        type: array
+      sysMenu:
+        items:
+          $ref: '#/definitions/models.SysMenu'
+        type: array
+      updateBy:
+        type: integer
+    type: object
+  dto.SysUserInsertReq:
     properties:
       avatar:
         type: string
@@ -432,13 +704,124 @@ definitions:
         type: integer
       username:
         type: string
-    required:
-    - deptId
-    - email
-    - nickName
-    - phone
-    - status
-    - username
+    type: object
+  dto.SysUserUpdateReq:
+    properties:
+      avatar:
+        type: string
+      createBy:
+        type: integer
+      deptId:
+        type: integer
+      email:
+        type: string
+      nickName:
+        type: string
+      phone:
+        type: string
+      postId:
+        type: integer
+      remark:
+        type: string
+      roleId:
+        type: integer
+      sex:
+        type: string
+      status:
+        default: "1"
+        type: string
+      updateBy:
+        type: integer
+      userId:
+        description: 用户ID
+        type: integer
+      username:
+        type: string
+    type: object
+  dto.SysWorksInsertReq:
+    properties:
+      author:
+        type: string
+      contractId: {}
+      copyrightOwner:
+        type: string
+      createBy:
+        type: integer
+      description:
+        type: string
+      imgUrl:
+        type: string
+      isDel:
+        type: string
+      issuer:
+        type: string
+      issuerDate:
+        type: string
+      issync:
+        type: integer
+      metadataContent:
+        type: string
+      metadataUrl:
+        type: string
+      name:
+        type: string
+      networkId: {}
+      privatekeyId: {}
+      properties:
+        type: string
+      quantity:
+        type: integer
+      tokenCid:
+        type: string
+      tokenId:
+        type: integer
+      txHash:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  dto.SysWorksUpdateReq:
+    properties:
+      IsSync:
+        type: integer
+      author:
+        type: string
+      contractId:
+        type: integer
+      copyrightOwner:
+        type: string
+      createBy:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      imgUrl:
+        type: string
+      isDel:
+        type: string
+      issuer:
+        type: string
+      issuerDate:
+        type: string
+      metadataContent:
+        type: string
+      metadataUrl:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: integer
+      privatelyId:
+        type: integer
+      properties:
+        type: string
+      quantity:
+        type: integer
+      txHash:
+        type: string
+      updateBy:
+        type: integer
     type: object
   dto.UpdateStatusReq:
     properties:
@@ -464,9 +847,278 @@ definitions:
       userId:
         description: 用户ID
         type: integer
-    required:
-    - status
-    - userId
+    type: object
+  go-admin_app_admin_models.SysContract:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: string
+      symbol:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+      verify:
+        type: string
+    type: object
+  go-admin_app_admin_service_dto.SysContractInsertReq:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      description:
+        type: string
+      isDel:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: string
+      symbol:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      verify:
+        type: string
+    type: object
+  go-admin_app_admin_service_dto.SysContractTokenInsertReq:
+    properties:
+      createBy:
+        type: integer
+      isDel:
+        type: string
+      isSync:
+        type: integer
+      metadataContent:
+        type: string
+      stock:
+        type: integer
+      tokenCid:
+        type: string
+      tokenId:
+        type: integer
+      transferAddress:
+        type: string
+      transferTx:
+        type: string
+      updateBy:
+        type: integer
+      worksId:
+        type: integer
+    type: object
+  go-admin_app_admin_service_dto.SysContractTokenUpdateReq:
+    properties:
+      createBy:
+        type: integer
+      id:
+        type: integer
+      isDel:
+        type: string
+      isSync:
+        type: integer
+      metadataContent:
+        type: string
+      stock:
+        type: integer
+      tokenCid:
+        type: string
+      tokenId:
+        type: integer
+      transferAddress:
+        type: string
+      transferTx:
+        type: string
+      updateBy:
+        type: integer
+      worksId:
+        type: integer
+    type: object
+  go-admin_app_admin_service_dto.SysContractUpdateReq:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: string
+      symbol:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      verify:
+        type: string
+    type: object
+  go-admin_app_contract_models.SysContract:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: string
+      symbol:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+      verify:
+        type: string
+    type: object
+  go-admin_app_contract_service_dto.SysContractInsertReq:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      description:
+        type: string
+      isDel:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: string
+      symbol:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      verify:
+        type: string
+    type: object
+  go-admin_app_contract_service_dto.SysContractTokenInsertReq:
+    properties:
+      amount:
+        type: string
+      createBy:
+        type: integer
+      creator:
+        type: string
+      description:
+        type: string
+      imgUrl:
+        type: string
+      isDel:
+        type: string
+      isSync:
+        type: string
+      metadataContent:
+        type: string
+      metadataUrl:
+        type: string
+      name:
+        type: string
+      properties:
+        type: string
+      txHash:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  go-admin_app_contract_service_dto.SysContractTokenUpdateReq:
+    properties:
+      amount:
+        type: string
+      contractId:
+        description: 合约id
+        type: integer
+      createBy:
+        type: integer
+      creator:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      imgUrl:
+        type: string
+      isDel:
+        type: string
+      isSync:
+        type: string
+      metadataContent:
+        type: string
+      metadataUrl:
+        type: string
+      name:
+        type: string
+      properties:
+        type: string
+      tokenId:
+        description: TokenID
+        type: integer
+      txHash:
+        type: string
+      updateBy:
+        type: integer
+    type: object
+  go-admin_app_contract_service_dto.SysContractUpdateReq:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: string
+      symbol:
+        type: string
+      type:
+        type: string
+      updateBy:
+        type: integer
+      verify:
+        type: string
     type: object
   handler.Login:
     properties:
@@ -483,6 +1135,21 @@ definitions:
     - password
     - username
     - uuid
+    type: object
+  models.GastrackerRes:
+    properties:
+      FastGasPrice:
+        type: string
+      LastBlock:
+        type: string
+      ProposeGasPrice:
+        type: string
+      SafeGasPrice:
+        type: string
+      gasUsedRatio:
+        type: string
+      suggestBaseFee:
+        type: string
     type: object
   models.SysApi:
     properties:
@@ -531,6 +1198,102 @@ definitions:
         type: integer
       updatedAt:
         type: string
+    type: object
+  models.SysContractToken:
+    properties:
+      amount:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      creator:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      imgUrl:
+        type: string
+      isDel:
+        type: string
+      isSync:
+        type: string
+      metadataContent:
+        type: string
+      metadataUrl:
+        type: string
+      name:
+        type: string
+      properties:
+        type: string
+      txHash:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.SysContractTokenJoin:
+    properties:
+      baseAddress:
+        type: string
+      blockUrl:
+        type: string
+      chainId:
+        type: integer
+      contractAddress:
+        type: string
+      contractName:
+        type: string
+      copyrightOwner:
+        type: string
+      createBy:
+        type: integer
+      createName:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      imgUrl:
+        type: string
+      ipfsBindDir:
+        type: string
+      isDel:
+        type: string
+      isSync:
+        type: integer
+      isTransfer:
+        type: integer
+      issuerDate:
+        type: string
+      metadataContent:
+        type: string
+      name:
+        type: string
+      networkName:
+        type: string
+      rpcUrl:
+        type: string
+      stock:
+        type: integer
+      tokenCid:
+        type: string
+      tokenId:
+        type: integer
+      transferAddress:
+        type: string
+      transferTx:
+        type: string
+      txHash:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+      worksId:
+        type: integer
     type: object
   models.SysDept:
     properties:
@@ -638,6 +1401,132 @@ definitions:
       updatedAt:
         type: string
       visible:
+        type: string
+    type: object
+  models.SysNetwork:
+    properties:
+      blockUrl:
+        type: string
+      chainId:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      ipfsBindDir:
+        type: string
+      ipfsCid:
+        type: string
+      ipfsIsPush:
+        type: integer
+      isDel:
+        type: string
+      name:
+        type: string
+      rpcUrl:
+        type: string
+      symbol:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.SysPrivatekey:
+    properties:
+      address:
+        type: string
+      createBy:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      isDel:
+        type: string
+      privatekey:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.SysWorksJoin:
+    properties:
+      author:
+        type: string
+      baseAddress:
+        type: string
+      blockUrl:
+        type: string
+      chainId:
+        type: integer
+      contractAddress:
+        type: string
+      contractId:
+        type: integer
+      contractName:
+        type: string
+      copyrightOwner:
+        type: string
+      createBy:
+        type: integer
+      createName:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      imgUrl:
+        type: string
+      ipfsBindDir:
+        type: string
+      isDel:
+        type: string
+      isSync:
+        type: integer
+      issuer:
+        type: string
+      issuerDate:
+        type: string
+      metadataContent:
+        type: string
+      metadataUrl:
+        type: string
+      name:
+        type: string
+      networkId:
+        type: integer
+      networkName:
+        type: string
+      privatekeyId:
+        type: integer
+      properties:
+        type: string
+      quantity:
+        type: integer
+      rpcUrl:
+        type: string
+      tokenCid:
+        type: string
+      tokenId:
+        type: integer
+      txHash:
+        type: string
+      updateBy:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.SysWorksToMitReturn:
+    properties:
+      blockUrl:
+        type: string
+      tx:
         type: string
     type: object
   response.Page:
@@ -945,7 +1834,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDeptById'
+          $ref: '#/definitions/dto.SysDeptDeleteReq'
       responses:
         "200":
           description: '{"code": -1, "message": "删除失败"}'
@@ -991,7 +1880,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDeptControl'
+          $ref: '#/definitions/dto.SysDeptInsertReq'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1010,10 +1899,6 @@ paths:
         in: path
         name: deptId
         type: string
-      - description: position
-        in: query
-        name: position
-        type: string
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1021,7 +1906,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: 部门列表数据
+      summary: 获取部门数据
       tags:
       - 部门
     put:
@@ -1039,7 +1924,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDeptControl'
+          $ref: '#/definitions/dto.SysDeptUpdateReq'
       responses:
         "200":
           description: '{"code": -1, "message": "添加失败"}'
@@ -1061,9 +1946,16 @@ paths:
         type: integer
       responses:
         "200":
-          description: '{"code": -1, "message": "删除失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.SysDictDataGetAllResp'
+                  type: array
+              type: object
       security:
       - Bearer: []
       summary: 数据字典根据key获取
@@ -1078,12 +1970,12 @@ paths:
         name: dictCode
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDictDataById'
+          $ref: '#/definitions/dto.SysDictDataDeleteReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "删除失败"}'
+          description: '{"code": 200, "message": "删除成功"}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 删除字典数据
@@ -1132,12 +2024,12 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDictDataControl'
+          $ref: '#/definitions/dto.SysDictDataInsertReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "message": "添加成功"}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 添加字典数据
@@ -1172,12 +2064,12 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDictDataControl'
+          $ref: '#/definitions/dto.SysDictDataUpdateReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "message": "修改成功"}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 修改字典数据
@@ -1187,16 +2079,17 @@ paths:
     delete:
       description: 删除数据
       parameters:
-      - description: dictId
-        in: path
-        name: dictId
+      - description: body
+        in: body
+        name: dictCode
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/dto.SysDictTypeDeleteReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "删除失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 删除字典类型
@@ -1245,12 +2138,12 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDictTypeControl'
+          $ref: '#/definitions/dto.SysDictTypeInsertReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 添加字典类型
@@ -1311,12 +2204,12 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysDictTypeControl'
+          $ref: '#/definitions/dto.SysDictTypeUpdateReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 修改字典类型
@@ -1372,7 +2265,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysMenuById'
+          $ref: '#/definitions/dto.SysMenuDeleteReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1386,10 +2279,6 @@ paths:
     get:
       description: 获取JSON
       parameters:
-      - description: menuName
-        in: query
-        name: menuName
-        type: string
       - description: menuName
         in: query
         name: menuName
@@ -1414,7 +2303,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysMenuControl'
+          $ref: '#/definitions/dto.SysMenuInsertReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1458,7 +2347,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysMenuControl'
+          $ref: '#/definitions/dto.SysMenuUpdateReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1515,13 +2404,9 @@ paths:
           $ref: '#/definitions/dto.SysPostDeleteReq'
       responses:
         "200":
-          description: '{"code": 200, "message": "删除成功"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
-        "500":
-          description: '{"code": 500, "message": "删除失败"}'
-          schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 删除岗位
@@ -1569,9 +2454,9 @@ paths:
           $ref: '#/definitions/dto.SysPostInsertReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 添加岗位
@@ -1591,9 +2476,9 @@ paths:
           $ref: '#/definitions/dto.SysPostUpdateReq'
       responses:
         "200":
-          description: '{"code": -1, "message": "添加失败"}'
+          description: '{"code": 200, "data": [...]}'
           schema:
-            type: string
+            $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
       summary: 修改岗位
@@ -1653,7 +2538,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysRoleById'
+          $ref: '#/definitions/dto.SysRoleDeleteReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1707,7 +2592,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysRoleControl'
+          $ref: '#/definitions/dto.SysRoleInsertReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1768,7 +2653,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysRoleControl'
+          $ref: '#/definitions/dto.SysRoleUpdateReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -1840,13 +2725,12 @@ paths:
     delete:
       description: 删除接口管理
       parameters:
-      - description: ids
+      - description: body
         in: body
-        name: ids
+        name: data
+        required: true
         schema:
-          items:
-            type: integer
-          type: array
+          $ref: '#/definitions/dto.SysApiDeleteReq'
       responses:
         "200":
           description: '{"code": 200, "message": "删除成功"}'
@@ -1939,7 +2823,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysApiControl'
+          $ref: '#/definitions/dto.SysApiUpdateReq'
       responses:
         "200":
           description: '{"code": 200, "message": "修改成功"}'
@@ -2085,6 +2969,294 @@ paths:
       summary: 修改配置管理
       tags:
       - 配置管理
+  /api/v1/sys-contract:
+    delete:
+      description: 删除合约
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除合约
+      tags:
+      - 合约
+    get:
+      description: 获取合约列表
+      parameters:
+      - description: name
+        in: query
+        name: name
+        type: string
+      - description: symbol
+        in: query
+        name: symbol
+        type: string
+      - description: 合约类型
+        in: query
+        name: type
+        type: string
+      - description: 主网类型
+        in: query
+        name: networkId
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/go-admin_app_contract_models.SysContract'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取合约列表
+      tags:
+      - 合约
+    post:
+      consumes:
+      - application/json
+      description: 创建合约
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_app_contract_service_dto.SysContractInsertReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "添加成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建合约
+      tags:
+      - 合约
+  /api/v1/sys-contract-token:
+    delete:
+      description: 删除合约token
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除合约token
+      tags:
+      - 合约token
+    get:
+      description: 获取合约token列表
+      parameters:
+      - description: 合约id
+        in: query
+        name: contractId
+        type: integer
+      - description: TokenID
+        in: query
+        name: tokenId
+        type: integer
+      - description: 数量
+        in: query
+        name: amount
+        type: string
+      - description: 拥有者
+        in: query
+        name: creator
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.SysContractToken'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取合约token列表
+      tags:
+      - 合约token
+    post:
+      consumes:
+      - application/json
+      description: 创建合约token
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_app_contract_service_dto.SysContractTokenInsertReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "添加成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建合约token
+      tags:
+      - 合约token
+  /api/v1/sys-contract-token/{id}:
+    get:
+      description: 获取合约token
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.SysContractToken'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取合约token
+      tags:
+      - 合约token
+    put:
+      consumes:
+      - application/json
+      description: 修改合约token
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_app_contract_service_dto.SysContractTokenUpdateReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改合约token
+      tags:
+      - 合约token
+  /api/v1/sys-contract-token/transfer:
+    post:
+      description: 代币转移
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "message": "后台处理中.. 请稍候查看状态"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 代币转移
+      tags:
+      - 合约token
+  /api/v1/sys-contract/{id}:
+    get:
+      description: 获取合约
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/go-admin_app_contract_models.SysContract'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取合约
+      tags:
+      - 合约
+    put:
+      consumes:
+      - application/json
+      description: 修改合约
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/go-admin_app_contract_service_dto.SysContractUpdateReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改合约
+      tags:
+      - 合约
   /api/v1/sys-login-log:
     delete:
       description: 登录日志删除
@@ -2094,7 +3266,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysLoginLogById'
+          $ref: '#/definitions/dto.SysLoginLogDeleteReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -2160,6 +3332,125 @@ paths:
       summary: 登录日志通过id获取
       tags:
       - 登录日志
+  /api/v1/sys-network:
+    delete:
+      description: 删除主网表
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除主网表
+      tags:
+      - 主网表
+    get:
+      description: 获取主网表列表
+      parameters:
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.SysNetwork'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取主网表列表
+      tags:
+      - 主网表
+    post:
+      consumes:
+      - application/json
+      description: 创建主网表
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysNetworkInsertReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "添加成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建主网表
+      tags:
+      - 主网表
+  /api/v1/sys-network/{id}:
+    get:
+      description: 获取主网表
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.SysNetwork'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取主网表
+      tags:
+      - 主网表
+    put:
+      consumes:
+      - application/json
+      description: 修改主网表
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysNetworkUpdateReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改主网表
+      tags:
+      - 主网表
   /api/v1/sys-opera-log:
     delete:
       description: 删除数据
@@ -2169,7 +3460,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysOperaLogById'
+          $ref: '#/definitions/dto.SysOperaLogDeleteReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -2243,6 +3534,144 @@ paths:
       summary: 操作日志通过id获取
       tags:
       - 操作日志
+  /api/v1/sys-privatekey:
+    delete:
+      description: 删除以太坊私钥
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除以太坊私钥
+      tags:
+      - 以太坊私钥
+    get:
+      description: 获取以太坊私钥列表
+      parameters:
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.SysPrivatekey'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取以太坊私钥列表
+      tags:
+      - 以太坊私钥
+    post:
+      consumes:
+      - application/json
+      description: 创建以太坊私钥
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysPrivatekeyInsertReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "添加成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建以太坊私钥
+      tags:
+      - 以太坊私钥
+  /api/v1/sys-privatekey/{id}:
+    get:
+      description: 获取以太坊私钥
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.SysPrivatekey'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取以太坊私钥
+      tags:
+      - 以太坊私钥
+    put:
+      consumes:
+      - application/json
+      description: 修改以太坊私钥
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysPrivatekeyUpdateReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改以太坊私钥
+      tags:
+      - 以太坊私钥
+  /api/v1/sys-privatekey/approvalforall:
+    post:
+      description: 操作员授权
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "message": "授权成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 操作员授权
+      tags:
+      - 以太坊私钥
   /api/v1/sys-user:
     get:
       description: 获取JSON
@@ -2271,7 +3700,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysUserControl'
+          $ref: '#/definitions/dto.SysUserInsertReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -2329,7 +3758,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.SysUserControl'
+          $ref: '#/definitions/dto.SysUserUpdateReq'
       responses:
         "200":
           description: '{"code": 200, "data": [...]}'
@@ -2340,6 +3769,187 @@ paths:
       summary: 修改用户数据
       tags:
       - 用户
+  /api/v1/sys-works:
+    delete:
+      description: 删除SysWorks
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "message": "删除成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 删除SysWorks
+      tags:
+      - 作品管理
+    get:
+      description: 获取SysWorks列表
+      parameters:
+      - description: 名称
+        in: query
+        name: name
+        type: string
+      - description: 版权方
+        in: query
+        name: copyrightOwner
+        type: string
+      - description: 著作人
+        in: query
+        name: author
+        type: string
+      - description: 发行方
+        in: query
+        name: issuer
+        type: string
+      - description: 页条数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 页码
+        in: query
+        name: pageIndex
+        type: integer
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.Page'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/models.SysWorksJoin'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取SysWorks列表
+      tags:
+      - 作品管理
+    post:
+      consumes:
+      - application/json
+      description: 创建SysWorks
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysWorksInsertReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "添加成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 创建SysWorks
+      tags:
+      - 作品管理
+  /api/v1/sys-works/{id}:
+    get:
+      description: 获取SysWorks
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.SysWorksJoin'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取SysWorks
+      tags:
+      - 作品管理
+    put:
+      consumes:
+      - application/json
+      description: 修改SysWorks
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SysWorksUpdateReq'
+      responses:
+        "200":
+          description: '{"code": 200, "message": "修改成功"}'
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: 修改SysWorks
+      tags:
+      - 作品管理
+  /api/v1/sys-works/Gastracker:
+    get:
+      description: 获取gas
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...]}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.GastrackerRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取gas
+      tags:
+      - 作品管理
+  /api/v1/sys-works/tomit:
+    post:
+      description: 铸币
+      parameters:
+      - description: ids
+        in: body
+        name: ids
+        schema:
+          items:
+            type: integer
+          type: array
+      responses:
+        "200":
+          description: '{"code": 200, "data": [...], "message": "后台处理中.. 请稍候查看状态"}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.SysWorksToMitReturn'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: 铸币
+      tags:
+      - 作品管理
   /api/v1/sys/tables/info:
     post:
       consumes:

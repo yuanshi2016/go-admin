@@ -10,7 +10,6 @@ import (
 func InitJob() {
 	jobList = map[string]JobsExec{
 		"ExamplesOne": ExamplesOne{},
-		// ...
 	}
 }
 

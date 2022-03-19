@@ -1,0 +1,374 @@
+package service
+
+import (
+	"bytes"
+	"context"
+	"crypto/ecdsa"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/go-admin-team/go-admin-core/sdk/service"
+	IPFS "github.com/ipfs/go-ipfs-api"
+	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/contract"
+	"go-admin/app/admin/service/dto"
+	"go-admin/common/actions"
+	cDto "go-admin/common/dto"
+	"gorm.io/gorm"
+	"math/big"
+	"strconv"
+	"strings"
+)
+
+type SysContractToken struct {
+	service.Service
+}
+
+// GetPage 获取SysContractToken列表
+func (e *SysContractToken) GetPage(c *dto.SysContractTokenGetPageReq, p *actions.DataPermission, list *[]models.SysContractTokenJoin, count *int64) error {
+	var err error
+	var data models.SysContractToken
+	err = e.Orm.Model(&data).
+		Scopes(
+			cDto.MakeCondition(c.GetNeedSearch()),
+			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+			actions.Permission(data.TableName(), p),
+		).
+		Select("sys_contract_token.*,sysuser.nick_name as create_name,contract.address as contract_address,contract.name as contract_name,network.chain_id,network.rpc_url,network.block_url,network.ipfs_bind_dir,network.name as network_name").
+		Joins("JOIN sys_contract contract on sys_contract_token.contract_id = contract.id ", nil).
+		Joins("JOIN sys_network network on contract.network_id = network.id ").
+		Joins("JOIN sys_user sysuser on sys_contract_token.create_by = sysuser.user_id ").
+		Find(list).Limit(-1).Offset(-1).
+		Count(count).Error
+	if err != nil {
+		e.Log.Errorf("SysContractTokenService GetPage error:%s \r\n", err)
+		return err
+	}
+	return nil
+}
+
+// Get 获取SysContractToken对象
+func (e *SysContractToken) Get(d *dto.SysContractTokenGetReq, p *actions.DataPermission, model *models.SysContractTokenJoin) error {
+	var data models.SysContractToken
+
+	err := e.Orm.Model(&data).
+		Scopes(
+			actions.Permission(data.TableName(), p),
+		).
+		Select("sys_contract_token.*,sysuser.nick_name as create_name,contract.address as contract_address,contract.name as contract_name,network.chain_id,network.rpc_url,network.block_url,network.ipfs_bind_dir,network.name as network_name").
+		Joins("JOIN sys_contract contract on sys_contract_token.contract_id = contract.id ", nil).
+		Joins("JOIN sys_network network on contract.network_id = network.id ").
+		Joins("JOIN sys_user sysuser on sys_contract_token.create_by = sysuser.user_id ").
+		First(&model, d.GetId()).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		err = errors.New("查看对象不存在或无权查看")
+		e.Log.Errorf("Service GetSysContractToken error:%s \r\n", err)
+		return err
+	}
+	if err != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	return nil
+}
+
+// Insert 创建SysContractToken对象
+func (e *SysContractToken) Insert(c *dto.SysContractTokenInsertReq) error {
+	var err, err_check error
+	var data models.SysContractToken
+	c.Generate(&data)
+	err_check = e.CheckAmount(&data)
+	if err_check != nil {
+		e.Log.Errorf("SysContractTokenService Insert CheckAmount Error:%s \r\n", err)
+		return err_check
+	}
+	//检查代币持有者地址是否正常
+	if !common.IsHexAddress(data.Creator) {
+		return errors.New("持有人地址效验错误")
+	}
+	data.Stock = 1
+	data.Amount = 1
+	//tokenId 放大化
+	data.TokenId = data.TokenId * 1000
+	err = e.Orm.Transaction(func(tx *gorm.DB) error {
+		//按照发行数量 实际添加X条
+		for i := 0; i < c.Amount; i++ {
+			data.Id = 0
+			data.TokenId += 1
+
+			//动态绑定MetadataContent
+			var content = models.MetadataContent{}
+			json.Unmarshal([]byte(data.MetadataContent), &content)
+			content.Tokenid = int64(data.TokenId)
+			data.MetadataContent = content.Tojson()
+			if err := tx.Create(&data).Error; err != nil {
+				// 回滚事务
+				return err
+			}
+		}
+		return nil
+	})
+	//err = e.Orm.Create(&data).Error
+	if err != nil {
+		e.Log.Errorf("SysContractTokenService Insert error:%s \r\n", err)
+		return err
+	}
+	return nil
+}
+
+// CheckAmount 检查铸币数量是否正确
+func (e *SysContractToken) CheckAmount(i *models.SysContractToken) error {
+	var object = new(models.SysConfig)
+	e.Orm.Raw("SELECT * from sys_config where config_key='token_amount'").Scan(object)
+	if len(object.ConfigValue) <= 0 {
+		return nil
+	}
+	var configAmount, _ = strconv.Atoi(object.ConfigValue)
+	if i.Amount > configAmount {
+		return errors.New("铸币数量超出范畴")
+	}
+	return nil
+}
+
+// Update 修改SysContractToken对象
+func (e *SysContractToken) Update(c *dto.SysContractTokenUpdateReq, p *actions.DataPermission) error {
+	var err, err_check error
+	var data = models.SysContractToken{}
+	e.Orm.Scopes(
+		actions.Permission(data.TableName(), p),
+	).First(&data, c.GetId())
+	c.Generate(&data)
+	err_check = e.CheckAmount(&data)
+	if err_check != nil {
+		e.Log.Errorf("SysContractTokenService Update CheckAmount Error:%s \r\n", err)
+		return err_check
+	}
+	//检查如果转移地址不为空的话  需要效验地址
+	if !common.IsHexAddress(data.TransferAddress) && len(data.TransferAddress) > 0 {
+		return errors.New("待转移地址效验错误")
+	}
+	db := e.Orm.Save(&data)
+	if db.Error != nil {
+		e.Log.Errorf("SysContractTokenService Save error:%s \r\n", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	return nil
+}
+
+// Remove 删除SysContractToken
+func (e *SysContractToken) Remove(d *dto.SysContractTokenDeleteReq, p *actions.DataPermission) error {
+	var data models.SysContractToken
+
+	db := e.Orm.Model(&data).
+		Scopes(
+			actions.Permission(data.TableName(), p),
+		).Delete(&data, d.GetId())
+	if err := db.Error; err != nil {
+		e.Log.Errorf("Service RemoveSysContractToken error:%s \r\n", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权删除该数据")
+	}
+	return nil
+}
+
+// Transfer 代币转移
+func (e *SysContractToken) Transfer(c *dto.SysContractTokenTransferReq, p *actions.DataPermission) (hash []models.SysContractTokenToMitReturn,err error) {
+	var data []models.SysContractTokenToMit
+	group := make(models.SysContractTokenToMitGroup)
+	_, BaseAddress, err := e.GetPrivate()
+	db := e.Orm.Model(&data).
+		Scopes(
+			actions.Permission(models.TableName(), p),
+		).
+		Select("sys_contract_token.*,contract.address as contract_address,contract.name as contract_name,network.chain_id,network.rpc_url,network.block_url,network.ipfs_bind_dir,network.name as network_name").
+		Joins("JOIN sys_contract contract on sys_contract_token.contract_id = contract.id ", nil).
+		Joins("JOIN sys_network network on contract.network_id = network.id ").
+		Where("is_sync = 1 and token_id in (?)", c.GetId()).
+		Find(&data)
+	for _, token := range data {
+		if _, ok := group[token.ContractAddress]; !ok {
+			group[token.ContractAddress] = &models.SysContractTokenToMitInfo{}
+		}
+		group[token.ContractAddress].TokenInfo = append(group[token.ContractAddress].TokenInfo, token)
+		group[token.ContractAddress].Address = append(group[token.ContractAddress].Address, common.HexToAddress(token.TransferAddress))
+		group[token.ContractAddress].BaseAddress = append(group[token.ContractAddress].BaseAddress, BaseAddress)
+		group[token.ContractAddress].TokenAmount = append(group[token.ContractAddress].TokenAmount, big.NewInt(1))
+		group[token.ContractAddress].TokenId = append(group[token.ContractAddress].TokenId, big.NewInt(int64(token.TokenId)))
+		group[token.ContractAddress].RpcUrl = token.RpcUrl
+		group[token.ContractAddress].ChainId = token.ChainId
+		group[token.ContractAddress].BlockUrl = token.BlockUrl
+	}
+	if db.RowsAffected == 0 {
+		return []models.SysContractTokenToMitReturn{},errors.New("未查询到所选代币信息")
+	}
+	//Private, BaseAddress, err := e.GetPrivate()
+	return e.SafeBatchTransferFrom(group)
+}
+func (e *SysContractToken)SafeBatchTransferFrom(TokenGroup models.SysContractTokenToMitGroup)  (hash []models.SysContractTokenToMitReturn, err error) {
+	Private, _, err := e.GetPrivate()
+	for ContractAddress, info := range TokenGroup {
+		Ids := strings.Replace(strings.Trim(fmt.Sprint(info.TokenId), "[]"), " ", ",", -1)
+		rpcDial, _ := rpc.Dial(info.RpcUrl)
+		//效验是否铸币
+		for _, mit := range info.TokenInfo {
+			if mit.IsSync != 1{
+				return hash,errors.New(fmt.Sprintf("tokenId：%v,未铸币", mit.TokenId))
+			}
+		}
+		//批量检查是否线上余额充足
+		client := ethclient.NewClient(rpcDial)
+		ContractClient, _ := contract.NewZapperNFTV201(common.HexToAddress(ContractAddress), client)
+		balance,err := ContractClient.BalanceOfBatch(nil,info.BaseAddress,info.TokenId)
+		for i, b := range balance {
+			if b.Int64() < 1{
+				return hash,errors.New(fmt.Sprintf("管理员地址->TokenID: %v,余额不足",info.TokenInfo[i].TokenId))
+			}
+		}
+		//待转移地址效验
+		for _, address := range info.Address {
+			if !common.IsHexAddress(address.Hex()) || address.String() == "0x0000000000000000000000000000000000000000"{
+				return hash,errors.New(fmt.Sprintf("待转移地址%s,效验失败!\r\n请设置转移地址", address.String()))
+			}
+		}
+		//私钥签名效验
+		auth, err := bind.NewKeyedTransactorWithChainID(Private, big.NewInt(int64(info.ChainId)))
+		if err != nil {
+			return hash,errors.New(fmt.Sprintf("私钥签名失败,请联系管理员!"))
+		}
+		_tx, err := ContractClient.AdminBatchTransferFrom(auth,info.Address,info.TokenId,info.TokenAmount,nil)
+		fmt.Println(_tx, err)
+		if err != nil {
+			return hash,err
+		}
+		hash = append(hash, models.SysContractTokenToMitReturn{
+			Tx:       _tx.Hash().String(),
+			BlockUrl: info.BlockUrl,
+		})
+		e.Orm.Raw(fmt.Sprintf("update %s set transfer_tx='%s',stock=stock-1 where token_id in (%s)", models.TableName(), _tx.Hash().Hex(), Ids)).Scan(nil)
+	}
+	return hash, err
+}
+// CheckTokenAmount 检查地址余额是否充足
+func (e *SysContractToken) CheckTokenAmount(data *models.SysContractTokenToMit) (*contract.ZapperNFTV201, error) {
+	_, BaseAddress, err := e.GetPrivate()
+	rpcDial, err := rpc.Dial(data.RpcUrl)
+	if err != nil {
+		panic(err)
+		return &contract.ZapperNFTV201{}, err
+	}
+	client := ethclient.NewClient(rpcDial)
+	ContractClient, _ := contract.NewZapperNFTV201(common.HexToAddress(data.ContractAddress), client)
+	Balance, err := ContractClient.BalanceOf(nil, BaseAddress, big.NewInt(int64(data.TokenId)))
+	if Balance.Int64() < 1 {
+		return ContractClient, errors.New("该地址链上余额不足")
+	}
+	return ContractClient, err
+}
+
+// GetPrivate 获取后台配置的私钥以及私钥地址
+func (e *SysContractToken) GetPrivate() (*ecdsa.PrivateKey, common.Address, error) {
+	var err error
+	var object = new(models.SysConfig)
+	e.Orm.Raw("SELECT * from sys_config where config_key='eth_private'").Scan(object)
+	if len(object.ConfigValue) <= 0 {
+		return &ecdsa.PrivateKey{}, common.Address{}, errors.New("私钥未配置")
+	}
+	Private, err := crypto.HexToECDSA(object.ConfigValue)
+	BaseAddress := crypto.PubkeyToAddress(Private.PublicKey)
+	return Private, BaseAddress, err
+}
+
+// GetIpfsConfig 获取ipfs配置
+func (e *SysContractToken) GetIpfsConfig() *models.SysContractIpfsConfig {
+	var object = new(models.SysContractIpfsConfig)
+	e.Orm.Raw("SELECT (SELECT config_value FROM sys_config WHERE config_key='ipfs_url') AS ipfs_url,(SELECT config_value FROM sys_config WHERE config_key='ipfs_ip') AS ipfs_ip,(SELECT config_value FROM sys_config WHERE config_key='ipfs_port') AS ipfs_port FROM sys_config WHERE config_key LIKE 'ipfs%' GROUP BY ipfs_url,ipfs_ip,ipfs_port").Scan(object)
+	return object
+}
+
+// ToMit 铸币
+func (e *SysContractToken) ToMit(d *dto.SysContractTokenToMitReq, p *actions.DataPermission) ([]models.SysContractTokenToMitReturn, error) {
+	var data []models.SysContractTokenToMit
+	group := make(models.SysContractTokenToMitGroup)
+	//Ids := strings.Replace(strings.Trim(fmt.Sprint(d.GetId()), "[]"), " ", ",", -1)
+	db := e.Orm.Model(&data).
+		Scopes(
+			actions.Permission(models.TableName(), p),
+		).
+		Select("sys_contract_token.*,contract.address as contract_address,contract.name as contract_name,network.chain_id,network.rpc_url,network.block_url,network.ipfs_bind_dir,network.name as network_name").
+		Joins("JOIN sys_contract contract on sys_contract_token.contract_id = contract.id ", nil).
+		Joins("JOIN sys_network network on contract.network_id = network.id ").
+		Where("is_sync = 0 and token_id in (?)", d.GetId()).
+		Find(&data)
+	for _, token := range data {
+		if _, ok := group[token.ContractAddress]; !ok {
+			group[token.ContractAddress] = &models.SysContractTokenToMitInfo{}
+		}
+		group[token.ContractAddress].TokenInfo = append(group[token.ContractAddress].TokenInfo, token)
+		group[token.ContractAddress].Address = append(group[token.ContractAddress].Address, common.HexToAddress(token.Creator))
+		group[token.ContractAddress].TokenAmount = append(group[token.ContractAddress].TokenAmount, big.NewInt(int64(token.Amount)))
+		group[token.ContractAddress].TokenId = append(group[token.ContractAddress].TokenId, big.NewInt(int64(token.TokenId)))
+		group[token.ContractAddress].RpcUrl = token.RpcUrl
+		group[token.ContractAddress].ChainId = token.ChainId
+		group[token.ContractAddress].BlockUrl = token.BlockUrl
+	}
+	if db.RowsAffected == 0 {
+		return []models.SysContractTokenToMitReturn{},errors.New("未查询到所选代币信息")
+	}
+	tx,err := e.sendContractToken(group)
+	return tx,err
+}
+
+// 铸币
+func (e *SysContractToken) sendContractToken(TokenGroup models.SysContractTokenToMitGroup) (hash []models.SysContractTokenToMitReturn, err error) {
+	Private, _, err := e.GetPrivate()
+	if err == nil {
+		err = errors.New("后台处理中,请稍候刷新查看状态")
+	}
+	for ContractAddress, info := range TokenGroup {
+		rpcDial, err := rpc.Dial(info.RpcUrl)
+		//批量发布到ipfs 并将成功上传token信息的ID进行上链
+		Address,SuccessIds,Amount := e.PushIpfs(info.TokenInfo)
+		Ids := strings.Replace(strings.Trim(fmt.Sprint(SuccessIds), "[]"), " ", ",", -1)
+		if err != nil {
+			panic(err)
+		}
+		client := ethclient.NewClient(rpcDial)
+		ContractClient, _ := contract.NewZapperNFTV201(common.HexToAddress(ContractAddress), client)
+		//获取签名
+		auth, err := bind.NewKeyedTransactorWithChainID(Private, big.NewInt(int64(info.ChainId)))
+		tx, err := ContractClient.MintBatch(auth, Address, SuccessIds, Amount, nil)
+		if err != nil {
+			continue
+		}
+		hash = append(hash, models.SysContractTokenToMitReturn{Tx: tx.Hash().Hex(),BlockUrl: info.BlockUrl})
+		e.Orm.Raw(fmt.Sprintf("update %s set tx_hash='%s',is_sync=1 where token_id in (%s)", models.TableName(), tx.Hash().Hex(), Ids)).Scan(nil)
+	}
+	return hash, err
+}
+func (e *SysContractToken) PushIpfs(Items []models.SysContractTokenToMit) (Address []common.Address,SuccessId []*big.Int,Amount []*big.Int) {
+	for _, item := range Items {
+		Config := e.GetIpfsConfig()
+		path := fmt.Sprintf("%s/%v", item.IpfsBindDir, item.TokenId)
+		ipfs := IPFS.NewShell(fmt.Sprintf("%s:%s", Config.IpfsIp, Config.IpfsPort))
+		err1 := ipfs.FilesWrite(context.Background(), path, bytes.NewReader([]byte(item.MetadataContent)), IPFS.FilesWrite.Create(true), IPFS.FilesWrite.Parents(true))
+		cid, err := ipfs.FilesStat(context.Background(), path)
+		if err == nil || err1 == nil {
+			Address = append(Address, common.HexToAddress(item.Creator))
+			SuccessId = append(SuccessId, big.NewInt(int64(item.TokenId)))
+			Amount = append(Amount,big.NewInt(1))
+			//更新单条token的 cid
+			e.Orm.Raw(fmt.Sprintf("update %s set token_cid='%s' where token_id =%d", models.TableName(), cid.Hash, item.TokenId)).Scan(nil)
+		}
+	}
+	return Address,SuccessId,Amount
+}

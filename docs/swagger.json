@@ -214,7 +214,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDeptControl"
+                            "$ref": "#/definitions/dto.SysDeptInsertReq"
                         }
                     }
                 ],
@@ -245,7 +245,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDeptById"
+                            "$ref": "#/definitions/dto.SysDeptDeleteReq"
                         }
                     }
                 ],
@@ -270,19 +270,13 @@
                 "tags": [
                     "部门"
                 ],
-                "summary": "部门列表数据",
+                "summary": "获取部门数据",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "deptId",
                         "name": "deptId",
                         "in": "path"
-                    },
-                    {
-                        "type": "string",
-                        "description": "position",
-                        "name": "position",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -322,7 +316,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDeptControl"
+                            "$ref": "#/definitions/dto.SysDeptUpdateReq"
                         }
                     }
                 ],
@@ -359,9 +353,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.SysDictDataGetAllResp"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -441,15 +450,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictDataControl"
+                            "$ref": "#/definitions/dto.SysDictDataInsertReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -472,15 +481,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictDataById"
+                            "$ref": "#/definitions/dto.SysDictDataDeleteReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -537,15 +546,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictDataControl"
+                            "$ref": "#/definitions/dto.SysDictDataUpdateReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -625,15 +634,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictTypeControl"
+                            "$ref": "#/definitions/dto.SysDictTypeInsertReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -651,18 +660,20 @@
                 "summary": "删除字典类型",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "dictId",
-                        "name": "dictId",
-                        "in": "path",
-                        "required": true
+                        "description": "body",
+                        "name": "dictCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysDictTypeDeleteReq"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"删除失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -761,15 +772,15 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysDictTypeControl"
+                            "$ref": "#/definitions/dto.SysDictTypeUpdateReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -846,12 +857,6 @@
                         "description": "menuName",
                         "name": "menuName",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "menuName",
-                        "name": "menuName",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -884,7 +889,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysMenuControl"
+                            "$ref": "#/definitions/dto.SysMenuInsertReq"
                         }
                     }
                 ],
@@ -915,7 +920,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysMenuById"
+                            "$ref": "#/definitions/dto.SysMenuDeleteReq"
                         }
                     }
                 ],
@@ -986,7 +991,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysMenuControl"
+                            "$ref": "#/definitions/dto.SysMenuUpdateReq"
                         }
                     }
                 ],
@@ -1130,9 +1135,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1161,15 +1166,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "{\"code\": 500, \"message\": \"删除失败\"}",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1203,9 +1202,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"code\": -1, \"message\": \"添加失败\"}",
+                        "description": "{\"code\": 200, \"data\": [...]}",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1357,7 +1356,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysRoleControl"
+                            "$ref": "#/definitions/dto.SysRoleInsertReq"
                         }
                     }
                 ],
@@ -1388,7 +1387,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysRoleById"
+                            "$ref": "#/definitions/dto.SysRoleDeleteReq"
                         }
                     }
                 ],
@@ -1488,7 +1487,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysRoleControl"
+                            "$ref": "#/definitions/dto.SysRoleUpdateReq"
                         }
                     }
                 ],
@@ -1698,14 +1697,12 @@
                 "summary": "删除接口管理",
                 "parameters": [
                     {
-                        "description": "ids",
-                        "name": "ids",
+                        "description": "body",
+                        "name": "data",
                         "in": "body",
+                        "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "$ref": "#/definitions/dto.SysApiDeleteReq"
                         }
                     }
                 ],
@@ -1781,7 +1778,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysApiControl"
+                            "$ref": "#/definitions/dto.SysApiUpdateReq"
                         }
                     }
                 ],
@@ -2025,6 +2022,496 @@
                 }
             }
         },
+        "/api/v1/sys-contract": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取合约列表",
+                "tags": [
+                    "合约"
+                ],
+                "summary": "获取合约列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "symbol",
+                        "name": "symbol",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约类型",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "主网类型",
+                        "name": "networkId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/go-admin_app_contract_models.SysContract"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建合约",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "合约"
+                ],
+                "summary": "创建合约",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_app_contract_service_dto.SysContractInsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除合约",
+                "tags": [
+                    "合约"
+                ],
+                "summary": "删除合约",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-contract-token": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取合约token列表",
+                "tags": [
+                    "合约token"
+                ],
+                "summary": "获取合约token列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "合约id",
+                        "name": "contractId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "TokenID",
+                        "name": "tokenId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "数量",
+                        "name": "amount",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "拥有者",
+                        "name": "creator",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.SysContractToken"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建合约token",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "合约token"
+                ],
+                "summary": "创建合约token",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_app_contract_service_dto.SysContractTokenInsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除合约token",
+                "tags": [
+                    "合约token"
+                ],
+                "summary": "删除合约token",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-contract-token/transfer": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "代币转移",
+                "tags": [
+                    "合约token"
+                ],
+                "summary": "代币转移",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"后台处理中.. 请稍候查看状态\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-contract-token/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取合约token",
+                "tags": [
+                    "合约token"
+                ],
+                "summary": "获取合约token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.SysContractToken"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改合约token",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "合约token"
+                ],
+                "summary": "修改合约token",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_app_contract_service_dto.SysContractTokenUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-contract/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取合约",
+                "tags": [
+                    "合约"
+                ],
+                "summary": "获取合约",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/go-admin_app_contract_models.SysContract"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改合约",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "合约"
+                ],
+                "summary": "修改合约",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/go-admin_app_contract_service_dto.SysContractUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/sys-login-log": {
             "get": {
                 "security": [
@@ -2102,7 +2589,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysLoginLogById"
+                            "$ref": "#/definitions/dto.SysLoginLogDeleteReq"
                         }
                     }
                 ],
@@ -2139,6 +2626,212 @@
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-network": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取主网表列表",
+                "tags": [
+                    "主网表"
+                ],
+                "summary": "获取主网表列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.SysNetwork"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建主网表",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "主网表"
+                ],
+                "summary": "创建主网表",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysNetworkInsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除主网表",
+                "tags": [
+                    "主网表"
+                ],
+                "summary": "删除主网表",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-network/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取主网表",
+                "tags": [
+                    "主网表"
+                ],
+                "summary": "获取主网表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.SysNetwork"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改主网表",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "主网表"
+                ],
+                "summary": "修改主网表",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysNetworkUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2235,7 +2928,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysOperaLogById"
+                            "$ref": "#/definitions/dto.SysOperaLogDeleteReq"
                         }
                     }
                 ],
@@ -2272,6 +2965,244 @@
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-privatekey": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取以太坊私钥列表",
+                "tags": [
+                    "以太坊私钥"
+                ],
+                "summary": "获取以太坊私钥列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.SysPrivatekey"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建以太坊私钥",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "以太坊私钥"
+                ],
+                "summary": "创建以太坊私钥",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysPrivatekeyInsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除以太坊私钥",
+                "tags": [
+                    "以太坊私钥"
+                ],
+                "summary": "删除以太坊私钥",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-privatekey/approvalforall": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "操作员授权",
+                "tags": [
+                    "以太坊私钥"
+                ],
+                "summary": "操作员授权",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"授权成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-privatekey/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取以太坊私钥",
+                "tags": [
+                    "以太坊私钥"
+                ],
+                "summary": "获取以太坊私钥",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.SysPrivatekey"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改以太坊私钥",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "以太坊私钥"
+                ],
+                "summary": "修改以太坊私钥",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysPrivatekeyUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2329,7 +3260,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysUserControl"
+                            "$ref": "#/definitions/dto.SysUserInsertReq"
                         }
                     }
                 ],
@@ -2394,7 +3325,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SysUserControl"
+                            "$ref": "#/definitions/dto.SysUserUpdateReq"
                         }
                     }
                 ],
@@ -2430,6 +3361,320 @@
                 "responses": {
                     "200": {
                         "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-works": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取SysWorks列表",
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "获取SysWorks列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "版权方",
+                        "name": "copyrightOwner",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "著作人",
+                        "name": "author",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "发行方",
+                        "name": "issuer",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页条数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "pageIndex",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.Page"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/models.SysWorksJoin"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建SysWorks",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "创建SysWorks",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysWorksInsertReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"添加成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除SysWorks",
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "删除SysWorks",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"删除成功\"}",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-works/Gastracker": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取gas",
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "获取gas",
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.GastrackerRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-works/tomit": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "铸币",
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "铸币",
+                "parameters": [
+                    {
+                        "description": "ids",
+                        "name": "ids",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...], \"message\": \"后台处理中.. 请稍候查看状态\"}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.SysWorksToMitReturn"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sys-works/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取SysWorks",
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "获取SysWorks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"data\": [...]}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.SysWorksJoin"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "修改SysWorks",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "作品管理"
+                ],
+                "summary": "修改SysWorks",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SysWorksUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\": 200, \"message\": \"修改成功\"}",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2797,10 +4042,6 @@
         },
         "dto.PassWord": {
             "type": "object",
-            "required": [
-                "newPassword",
-                "oldPassword"
-            ],
             "properties": {
                 "newPassword": {
                     "type": "string"
@@ -2812,10 +4053,6 @@
         },
         "dto.ResetSysUserPwdReq": {
             "type": "object",
-            "required": [
-                "password",
-                "userId"
-            ],
             "properties": {
                 "createBy": {
                     "type": "integer"
@@ -2853,7 +4090,18 @@
                 }
             }
         },
-        "dto.SysApiControl": {
+        "dto.SysApiDeleteReq": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "dto.SysApiUpdateReq": {
             "type": "object",
             "properties": {
                 "action": {
@@ -2924,12 +4172,9 @@
                 }
             }
         },
-        "dto.SysDeptById": {
+        "dto.SysDeptDeleteReq": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "ids": {
                     "type": "array",
                     "items": {
@@ -2938,7 +4183,7 @@
                 }
             }
         },
-        "dto.SysDeptControl": {
+        "dto.SysDeptInsertReq": {
             "type": "object",
             "properties": {
                 "createBy": {
@@ -2985,13 +4230,57 @@
                 }
             }
         },
-        "dto.SysDictDataById": {
+        "dto.SysDeptUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {
                     "type": "integer"
                 },
-                "id": {
+                "deptId": {
+                    "description": "编码",
+                    "type": "integer"
+                },
+                "deptName": {
+                    "description": "部门名称",
+                    "type": "string"
+                },
+                "deptPath": {
+                    "description": "路径",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "leader": {
+                    "description": "负责人",
+                    "type": "string"
+                },
+                "parentId": {
+                    "description": "上级部门",
+                    "type": "integer"
+                },
+                "phone": {
+                    "description": "手机",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysDictDataDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
                     "type": "integer"
                 },
                 "ids": {
@@ -3005,7 +4294,59 @@
                 }
             }
         },
-        "dto.SysDictDataControl": {
+        "dto.SysDictDataGetAllResp": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysDictDataInsertReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "cssClass": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "string"
+                },
+                "dictLabel": {
+                    "type": "string"
+                },
+                "dictSort": {
+                    "type": "integer"
+                },
+                "dictType": {
+                    "type": "string"
+                },
+                "dictValue": {
+                    "type": "string"
+                },
+                "isDefault": {
+                    "type": "string"
+                },
+                "listClass": {
+                    "type": "string"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysDictDataUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {
@@ -3049,7 +4390,24 @@
                 }
             }
         },
-        "dto.SysDictTypeControl": {
+        "dto.SysDictTypeDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysDictTypeInsertReq": {
             "type": "object",
             "properties": {
                 "createBy": {
@@ -3075,13 +4433,47 @@
                 }
             }
         },
-        "dto.SysLoginLogById": {
+        "dto.SysDictTypeUpdateReq": {
             "type": "object",
             "properties": {
                 "createBy": {
                     "type": "integer"
                 },
+                "dictName": {
+                    "type": "string"
+                },
+                "dictType": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysLoginLogDeleteReq": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "dto.SysMenuDeleteReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
                     "type": "integer"
                 },
                 "ids": {
@@ -3095,27 +4487,7 @@
                 }
             }
         },
-        "dto.SysMenuById": {
-            "type": "object",
-            "properties": {
-                "createBy": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "updateBy": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.SysMenuControl": {
+        "dto.SysMenuInsertReq": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3202,12 +4574,175 @@
                 }
             }
         },
-        "dto.SysOperaLogById": {
+        "dto.SysMenuUpdateReq": {
             "type": "object",
             "properties": {
+                "action": {
+                    "description": "请求方式",
+                    "type": "string"
+                },
+                "apis": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "breadcrumb": {
+                    "description": "是否面包屑",
+                    "type": "string"
+                },
+                "component": {
+                    "description": "组件",
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "icon": {
+                    "description": "图标",
+                    "type": "string"
+                },
+                "isFrame": {
+                    "description": "是否frame",
+                    "type": "string"
+                },
+                "menuId": {
+                    "description": "编码",
+                    "type": "integer"
+                },
+                "menuName": {
+                    "description": "菜单name",
+                    "type": "string"
+                },
+                "menuType": {
+                    "description": "菜单类型",
+                    "type": "string"
+                },
+                "noCache": {
+                    "description": "是否缓存",
+                    "type": "boolean"
+                },
+                "parentId": {
+                    "description": "上级菜单",
+                    "type": "integer"
+                },
+                "path": {
+                    "description": "路径",
+                    "type": "string"
+                },
+                "paths": {
+                    "description": "id路径",
+                    "type": "string"
+                },
+                "permission": {
+                    "description": "权限编码",
+                    "type": "string"
+                },
+                "sort": {
+                    "description": "排序",
+                    "type": "integer"
+                },
+                "sysApi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysApi"
+                    }
+                },
+                "title": {
+                    "description": "显示名称",
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "visible": {
+                    "description": "是否显示",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysNetworkInsertReq": {
+            "type": "object",
+            "properties": {
+                "blockUrl": {
+                    "type": "string"
+                },
+                "chainId": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "ipfsBindDir": {
+                    "type": "string"
+                },
+                "ipfsCid": {
+                    "type": "string"
+                },
+                "ipfsIsPush": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rpcUrl": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysNetworkUpdateReq": {
+            "type": "object",
+            "properties": {
+                "blockUrl": {
+                    "type": "string"
+                },
+                "chainId": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
+                "ipfsBindDir": {
+                    "type": "string"
+                },
+                "ipfsCid": {
+                    "type": "string"
+                },
+                "ipfsIsPush": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rpcUrl": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysOperaLogDeleteReq": {
+            "type": "object",
+            "properties": {
                 "ids": {
                     "type": "array",
                     "items": {
@@ -3291,12 +4826,52 @@
                 }
             }
         },
-        "dto.SysRoleById": {
+        "dto.SysPrivatekeyInsertReq": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "privatekey": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysPrivatekeyUpdateReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
+                "isDel": {
+                    "type": "string"
+                },
+                "privatekey": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysRoleDeleteReq": {
+            "type": "object",
+            "properties": {
                 "ids": {
                     "type": "array",
                     "items": {
@@ -3305,7 +4880,7 @@
                 }
             }
         },
-        "dto.SysRoleControl": {
+        "dto.SysRoleInsertReq": {
             "type": "object",
             "properties": {
                 "admin": {
@@ -3374,16 +4949,77 @@
                 }
             }
         },
-        "dto.SysUserControl": {
+        "dto.SysRoleUpdateReq": {
             "type": "object",
-            "required": [
-                "deptId",
-                "email",
-                "nickName",
-                "phone",
-                "status",
-                "username"
-            ],
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "dataScope": {
+                    "type": "string"
+                },
+                "deptIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "flag": {
+                    "description": "标记",
+                    "type": "string"
+                },
+                "menuIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "remark": {
+                    "description": "备注",
+                    "type": "string"
+                },
+                "roleId": {
+                    "description": "角色编码",
+                    "type": "integer"
+                },
+                "roleKey": {
+                    "description": "角色代码",
+                    "type": "string"
+                },
+                "roleName": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "roleSort": {
+                    "description": "角色排序",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态",
+                    "type": "string"
+                },
+                "sysDept": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysDept"
+                    }
+                },
+                "sysMenu": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SysMenu"
+                    }
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysUserInsertReq": {
+            "type": "object",
             "properties": {
                 "avatar": {
                     "type": "string"
@@ -3434,6 +5070,182 @@
                 }
             }
         },
+        "dto.SysUserUpdateReq": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "deptId": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "nickName": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "postId": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "integer"
+                },
+                "sex": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "default": "1"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "description": "用户ID",
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SysWorksInsertReq": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "contractId": {},
+                "copyrightOwner": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "issuer": {
+                    "type": "string"
+                },
+                "issuerDate": {
+                    "type": "string"
+                },
+                "issync": {
+                    "type": "integer"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "metadataUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {},
+                "privatekeyId": {},
+                "properties": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "tokenCid": {
+                    "type": "string"
+                },
+                "tokenId": {
+                    "type": "integer"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SysWorksUpdateReq": {
+            "type": "object",
+            "properties": {
+                "IsSync": {
+                    "type": "integer"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "contractId": {
+                    "type": "integer"
+                },
+                "copyrightOwner": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "issuer": {
+                    "type": "string"
+                },
+                "issuerDate": {
+                    "type": "string"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "metadataUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "integer"
+                },
+                "privatelyId": {
+                    "type": "integer"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.UpdateStatusReq": {
             "type": "object",
             "properties": {
@@ -3455,10 +5267,6 @@
         },
         "dto.UpdateSysUserStatusReq": {
             "type": "object",
-            "required": [
-                "status",
-                "userId"
-            ],
             "properties": {
                 "createBy": {
                     "type": "integer"
@@ -3472,6 +5280,418 @@
                 "userId": {
                     "description": "用户ID",
                     "type": "integer"
+                }
+            }
+        },
+        "go-admin_app_admin_models.SysContract": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "verify": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_app_admin_service_dto.SysContractInsertReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "verify": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_app_admin_service_dto.SysContractTokenInsertReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "integer"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "tokenCid": {
+                    "type": "string"
+                },
+                "tokenId": {
+                    "type": "integer"
+                },
+                "transferAddress": {
+                    "type": "string"
+                },
+                "transferTx": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "worksId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "go-admin_app_admin_service_dto.SysContractTokenUpdateReq": {
+            "type": "object",
+            "properties": {
+                "createBy": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "integer"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "tokenCid": {
+                    "type": "string"
+                },
+                "tokenId": {
+                    "type": "integer"
+                },
+                "transferAddress": {
+                    "type": "string"
+                },
+                "transferTx": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "worksId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "go-admin_app_admin_service_dto.SysContractUpdateReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "verify": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_app_contract_models.SysContract": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "verify": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_app_contract_service_dto.SysContractInsertReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "verify": {
+                    "type": "string"
+                }
+            }
+        },
+        "go-admin_app_contract_service_dto.SysContractTokenInsertReq": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "creator": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "string"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "metadataUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "go-admin_app_contract_service_dto.SysContractTokenUpdateReq": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "contractId": {
+                    "description": "合约id",
+                    "type": "integer"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "creator": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "string"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "metadataUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "tokenId": {
+                    "description": "TokenID",
+                    "type": "integer"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                }
+            }
+        },
+        "go-admin_app_contract_service_dto.SysContractUpdateReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "verify": {
+                    "type": "string"
                 }
             }
         },
@@ -3494,6 +5714,29 @@
                     "type": "string"
                 },
                 "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.GastrackerRes": {
+            "type": "object",
+            "properties": {
+                "FastGasPrice": {
+                    "type": "string"
+                },
+                "LastBlock": {
+                    "type": "string"
+                },
+                "ProposeGasPrice": {
+                    "type": "string"
+                },
+                "SafeGasPrice": {
+                    "type": "string"
+                },
+                "gasUsedRatio": {
+                    "type": "string"
+                },
+                "suggestBaseFee": {
                     "type": "string"
                 }
             }
@@ -3568,6 +5811,151 @@
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "models.SysContractToken": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "creator": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "string"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "metadataUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysContractTokenJoin": {
+            "type": "object",
+            "properties": {
+                "baseAddress": {
+                    "type": "string"
+                },
+                "blockUrl": {
+                    "type": "string"
+                },
+                "chainId": {
+                    "type": "integer"
+                },
+                "contractAddress": {
+                    "type": "string"
+                },
+                "contractName": {
+                    "type": "string"
+                },
+                "copyrightOwner": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createName": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "ipfsBindDir": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "integer"
+                },
+                "isTransfer": {
+                    "type": "integer"
+                },
+                "issuerDate": {
+                    "type": "string"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkName": {
+                    "type": "string"
+                },
+                "rpcUrl": {
+                    "type": "string"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "tokenCid": {
+                    "type": "string"
+                },
+                "tokenId": {
+                    "type": "integer"
+                },
+                "transferAddress": {
+                    "type": "string"
+                },
+                "transferTx": {
+                    "type": "string"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "worksId": {
+                    "type": "integer"
                 }
             }
         },
@@ -3726,6 +6114,197 @@
                     "type": "string"
                 },
                 "visible": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysNetwork": {
+            "type": "object",
+            "properties": {
+                "blockUrl": {
+                    "type": "string"
+                },
+                "chainId": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ipfsBindDir": {
+                    "type": "string"
+                },
+                "ipfsCid": {
+                    "type": "string"
+                },
+                "ipfsIsPush": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rpcUrl": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysPrivatekey": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "privatekey": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysWorksJoin": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "baseAddress": {
+                    "type": "string"
+                },
+                "blockUrl": {
+                    "type": "string"
+                },
+                "chainId": {
+                    "type": "integer"
+                },
+                "contractAddress": {
+                    "type": "string"
+                },
+                "contractId": {
+                    "type": "integer"
+                },
+                "contractName": {
+                    "type": "string"
+                },
+                "copyrightOwner": {
+                    "type": "string"
+                },
+                "createBy": {
+                    "type": "integer"
+                },
+                "createName": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imgUrl": {
+                    "type": "string"
+                },
+                "ipfsBindDir": {
+                    "type": "string"
+                },
+                "isDel": {
+                    "type": "string"
+                },
+                "isSync": {
+                    "type": "integer"
+                },
+                "issuer": {
+                    "type": "string"
+                },
+                "issuerDate": {
+                    "type": "string"
+                },
+                "metadataContent": {
+                    "type": "string"
+                },
+                "metadataUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "networkId": {
+                    "type": "integer"
+                },
+                "networkName": {
+                    "type": "string"
+                },
+                "privatekeyId": {
+                    "type": "integer"
+                },
+                "properties": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "rpcUrl": {
+                    "type": "string"
+                },
+                "tokenCid": {
+                    "type": "string"
+                },
+                "tokenId": {
+                    "type": "integer"
+                },
+                "txHash": {
+                    "type": "string"
+                },
+                "updateBy": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SysWorksToMitReturn": {
+            "type": "object",
+            "properties": {
+                "blockUrl": {
+                    "type": "string"
+                },
+                "tx": {
                     "type": "string"
                 }
             }

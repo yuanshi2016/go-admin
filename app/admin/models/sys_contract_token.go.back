@@ -1,0 +1,121 @@
+package models
+
+import (
+	// "gorm.io/gorm"
+
+	"encoding/json"
+	"github.com/ethereum/go-ethereum/common"
+	"go-admin/common/models"
+	"math/big"
+	"time"
+)
+
+type SysContractTokenToMitGroup map[string]*SysContractTokenToMitInfo
+
+func (e *SysContractTokenToMitGroup) ToJson() string {
+	mjson, _ := json.Marshal(e)
+	return string(mjson)
+}
+type SysContractTokenToMitInfo struct {
+	TokenInfo []SysContractTokenToMit
+	Address []common.Address
+	BaseAddress []common.Address
+	TokenAmount []*big.Int
+	TokenId []*big.Int
+	RpcUrl string
+	BlockUrl string
+	ChainId int
+}
+type SysContractTokenToMitReturn struct {
+	Tx string `json:"tx"`
+	BlockUrl string `json:"blockUrl"`
+}
+type SysContractTokenToMit struct {
+	SysContractTokenJoin
+}
+type SysContractTokenTransfer struct {
+	SysContractTokenJoin
+}
+type SysContractTokenJoin struct {
+	SysContractToken
+	CreateName string `json:"createName"`
+	NetworkName string `json:"networkName"`
+	ContractAddress string `json:"contractAddress"`
+	ContractName string `json:"contractName"`
+	RpcUrl string `json:"rpcUrl"`
+	ChainId int `json:"chainId"`
+	BlockUrl string `json:"blockUrl"`
+	IpfsBindDir string `json:"ipfsBindDir"`
+}
+func (e *SysContractTokenTransfer) ToJson() string {
+	mjson, _ := json.Marshal(e)
+	return string(mjson)
+}
+func TableName() string {
+	return "sys_contract_token"
+}
+
+type SysContractIpfsConfig struct {
+	IpfsUrl string `json:"ipfs_url" gorm:"type:varchar(255);comment:IPFS地址"`
+	IpfsPort string `json:"ipfs_port" gorm:"type:varchar(255);comment:IPFS端口"`
+	IpfsIp string `json:"ipfs_ip" gorm:"type:varchar(255);comment:IPFS ip"`
+}
+
+func (s *SysContractIpfsConfig) Tojson() string  {
+	data, _ := json.Marshal(s)
+	return string(data)
+}
+type MetadataContent struct {
+	Tokenid int64 `json:"tokenid"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+	ResourcesURL string `json:"resources_url"`
+	CopyrightOwner string `json:"copyright_owner"`
+	Author string `json:"author"`
+	Issuer string `json:"issuer"`
+	IssuerDate time.Time `json:"issuer_date"`
+	Attributes []interface{} `json:"attributes"`
+}
+func (s *MetadataContent) Tojson() string  {
+	data, _ := json.Marshal(s)
+	return string(data)
+}
+type SysContractToken struct {
+    models.Model
+	ContractId int `json:"contractId" gorm:"type:int(11);comment:合约id"`
+	TokenId int `json:"tokenId" gorm:"type:int(11);comment:TokenID"`
+    Amount int `json:"amount" gorm:"type:int(11);comment:数量"`
+	Stock int `json:"stock" gorm:"type:int(11);comment:库存"`
+    Name string `json:"name" gorm:"type:varchar(255);comment:名称"`
+    Description string `json:"description" gorm:"type:text;comment:描述"` 
+    Properties string `json:"properties" gorm:"type:varchar(255);comment:属性"` 
+    ImgUrl string `json:"imgUrl" gorm:"type:varchar(255);comment:图标地址"` 
+    Creator string `json:"creator" gorm:"type:varchar(255);comment:拥有者"`
+	TransferAddress string `json:"transferAddress" gorm:"type:varchar(255);comment:待转移地址"`
+    TxHash string `json:"txHash" gorm:"type:varchar(255);comment:区块hash"`
+    MetadataUrl string `json:"metadataUrl" gorm:"type:varchar(255);comment:资源url"` 
+    MetadataContent string `json:"metadataContent" gorm:"type:varchar(255);comment:资源内容"` 
+    IsSync int `json:"isSync" gorm:"type:int(11);comment:是否已发布"`
+    IsDel string `json:"isDel" gorm:"type:blob;comment:IsDel"`
+	CopyrightOwner string `json:"copyrightOwner" gorm:"type:varchar(255);comment:版权方"`
+	Author string `json:"author" gorm:"type:varchar(255);comment:著作人"`
+	Issuer string `json:"issuer" gorm:"type:varchar(255);comment:发行方"`
+	TokenCid string `json:"tokenCid" gorm:"type:varchar(255);comment:TokenCid"`
+	IssuerDate time.Time      `json:"issuerDate" gorm:"comment:发行日期"`
+    models.ModelTime
+    models.ControlBy
+}
+
+func (SysContractToken) TableName() string {
+    return "sys_contract_token"
+}
+
+func (e *SysContractToken) Generate() models.ActiveRecord {
+	o := *e
+	return &o
+}
+
+func (e *SysContractToken) GetId() interface{} {
+	return e.Id
+}
+

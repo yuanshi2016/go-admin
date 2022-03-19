@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/casbin/casbin/v2/util"
 	"net/http"
 
@@ -38,6 +39,7 @@ func AuthCheckRole() gin.HandlerFunc {
 			return
 		}
 		res, err = e.Enforce(v["rolekey"], c.Request.URL.Path, c.Request.Method)
+		fmt.Printf("哈哈哈：%v %v %v \r\n", v["rolekey"], res, e)
 		if err != nil {
 			log.Errorf("AuthCheckRole error:%s method:%s path:%s", err, c.Request.Method, c.Request.URL.Path)
 			response.Error(c, 500, err, "")

@@ -118,6 +118,38 @@ func (e SysApi) Update(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
+// Insert
+// @Summary 添加字典数据
+// @Description 获取JSON
+// @Tags 字典数据
+// @Accept  application/json
+// @Product application/json
+// @Param data body dto.SysDictDataInsertReq true "data"
+// @Success 200 {object} response.Response	"{"code": 200, "message": "添加成功"}"
+// @Router /api/v1/dict/data [post]
+// @Security Bearer
+func (e SysApi) Insert(c *gin.Context) {
+	req := dto.SysApiInsertReq{}
+	s := service.SysApi{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, binding.JSON).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+	err = s.Insert(&req)
+	if err != nil {
+		e.Error(500, err, "创建失败")
+		return
+	}
+
+	e.OK(req.GetId(), "创建成功")
+}
+
 // DeleteSysApi 删除接口管理
 // @Summary 删除接口管理
 // @Description 删除接口管理

@@ -60,6 +60,19 @@ func (e *SysApi) Get(d *dto.SysApiGetReq, p *actions.DataPermission, model *mode
 	return e
 }
 
+// Insert 创建对象
+func (e *SysApi) Insert(c *dto.SysApiInsertReq) error {
+	var err error
+	var data = new(models.SysApi)
+	c.Generate(data)
+	err = e.Orm.Create(data).Error
+	if err != nil {
+		e.Log.Errorf("db error: %s", err)
+		return err
+	}
+	return nil
+}
+
 // Update 修改SysApi对象
 func (e *SysApi) Update(c *dto.SysApiUpdateReq, p *actions.DataPermission) error {
 	var model = models.SysApi{}
