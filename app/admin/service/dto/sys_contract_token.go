@@ -11,13 +11,17 @@ import (
 
 type SysContractTokenGetPageReq struct {
 	dto.Pagination `search:"-"`
-	Name           int    `form:"name"  search:"type:exact;column:name;table:works" comment:"作品名称"`
+	//NameJoin       `search:"type:full;on:works_id:id;table:sys_contract_token;join:sys_works"`
+	Name string `form:"name"  search:"type:contains;column:name;table:works" comment:"名称"`
+	//Name           string    `form:"name"  search:"type:contains;column:name;table:sys_works" comment:"作品名称"`
 	CopyrightOwner int    `form:"copyrightOwner"  search:"type:exact;column:copyright_owner;table:works" comment:"版权方"`
 	BeginTime      string `form:"beginTime" search:"type:gte;column:issuer_date;table:works" comment:"创建时间"`
 	EndTime        string `form:"endTime" search:"type:lte;column:issuer_date;table:works" comment:"创建时间"`
 	SysContractTokenOrder
 }
-
+type NameJoin struct {
+	Name string `search:"type:contains;column:name;table:sys_works" form:"Name"`
+}
 type SysContractTokenOrder struct {
 	Id              int       `form:"idOrder"  search:"type:order;column:id;table:sys_contract_token"`
 	TokenId         int       `form:"tokenIdOrder"  search:"type:order;column:token_id;table:sys_contract_token"`

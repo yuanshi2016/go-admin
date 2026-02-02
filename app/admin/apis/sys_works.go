@@ -35,7 +35,8 @@ func (e SysWorks) Gastracker(c *gin.Context) {
 		MakeOrm().
 		Bind(&req).
 		MakeService(&s.Service)
-	resp, _ := http.Get("https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=7I1JAEVRDNCT9BZHTY7IM79FWDPV32KS9H")
+	//resp, _ := http.Get("https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=7I1JAEVRDNCT9BZHTY7IM79FWDPV32KS9H")
+	resp, _ := http.Get("https://gpoly.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle")
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 	json.Unmarshal(body, &req)

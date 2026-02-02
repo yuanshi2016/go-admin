@@ -1,0 +1,1 @@
+ xgo --targets=linux/amd64 --ldflags="-s -w -linkmode=external -extldflags=-static" --out go-admin ./dist/go-admin_linux_amd64

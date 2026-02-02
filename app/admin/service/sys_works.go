@@ -7,6 +7,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go-admin/app/admin/models"
+	"go-admin/app/admin/service/contract"
+	"go-admin/app/admin/service/dto"
+	"go-admin/common/actions"
+	cDto "go-admin/common/dto"
+	"math/big"
+	"strconv"
+	"strings"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -14,15 +23,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	IPFS "github.com/ipfs/go-ipfs-api"
-	"go-admin/app/admin/models"
-	"go-admin/app/admin/service/contract"
-	"go-admin/app/admin/service/dto"
-	"go-admin/common/actions"
-	cDto "go-admin/common/dto"
 	"gorm.io/gorm"
-	"math/big"
-	"strconv"
-	"strings"
 )
 
 type SysWorks struct {
@@ -35,6 +36,7 @@ func (e *SysWorks) GetPage(c *dto.SysWorksGetPageReq, p *actions.DataPermission,
 	var data models.SysWorks
 	err = e.Orm.Model(&data).
 		Scopes(
+			cDto.OrderDest("sys_works.id", true),
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
 			actions.Permission(data.TableName(), p),
@@ -42,8 +44,8 @@ func (e *SysWorks) GetPage(c *dto.SysWorksGetPageReq, p *actions.DataPermission,
 		Select("sys_works.*,sysuser.nick_name as create_name,contract.address as contract_address,contract.name as contract_name,network.chain_id,network.rpc_url,network.block_url,network.ipfs_bind_dir,network.name as network_name").
 		Joins("JOIN sys_contract contract on sys_works.contract_id = contract.id ", nil).
 		Joins("JOIN sys_network network on contract.network_id = network.id ").
-		Joins("LEFT JOIN sys_user sysuser on sys_works.create_by = sysuser.user_id ").
-		Order("id desc").
+		Joins("JOIN sys_user sysuser on sys_works.create_by = sysuser.user_id ").
+		//Order("sys_works.id DESC").
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
@@ -102,10 +104,11 @@ func (e *SysWorks) Insert(c *dto.SysWorksInsertReq, p *actions.DataPermission) e
 	var content = models.MetadataContent{}
 	json.Unmarshal([]byte(c.MetadataContent), &content)
 	content.Tokenid = int64(c.TokenId)
-	//content.Image = fmt.Sprintf("ipfs://%s",c.ImgUrl)
-	content.Image = fmt.Sprintf("ipfs://%s", data.ImgUrl)
+	content.Image = fmt.Sprintf("ipfs://%v", c.ImgUrl)
 	c.MetadataContent = content.Tojson()
+	data.MetadataContent = c.MetadataContent
 	c.Generate(&data)
+
 	err = e.Orm.Transaction(func(tx *gorm.DB) error {
 		err = tx.Create(&data).Error
 		if err != nil {
@@ -230,20 +233,23 @@ func (e *SysWorks) ToMit(d *dto.SysWorksToMitReq, p *actions.DataPermission) ([]
 }
 func (e *SysWorks) UpdateTomitState() {
 	var data []models.SysWorksJoin
-	e.Log.Debug("执行铸币状态更新")
+	e.Log.Debug("执行铸币状态更新-Start")
 	db := e.Orm.Model(&data).
 		Select("sys_works.*,pkey.address as base_address,contract.address as contract_address,contract.name as contract_name,network.chain_id,network.rpc_url,network.block_url,network.ipfs_bind_dir,network.name as network_name").
 		Joins("JOIN sys_contract contract on sys_works.contract_id = contract.id ", nil).
 		Joins("JOIN sys_network network on sys_works.network_id = network.id ").
 		Joins("LEFT JOIN sys_contract_token token on token.works_id = sys_works.id ").
 		Joins("JOIN sys_privatekey pkey on pkey.id = sys_works.privatekey_id ").
-		Where("sys_works.is_sync != 2").
+		Where("sys_works.is_sync = 1").Group("sys_works.id").
 		Find(&data)
 	if db.RowsAffected == 0 {
 		return
 	}
 	for _, item := range data {
-		rpcDial, _ := rpc.Dial(item.RpcUrl)
+		rpcDial, err := rpc.Dial(item.RpcUrl)
+		if err != nil {
+			e.Log.Errorf("节点连接失败%s", err.Error())
+		}
 		client := ethclient.NewClient(rpcDial)
 		HashRes, IsPending, err := client.TransactionByHash(context.Background(), common.HexToHash(item.TxHash))
 		if err == nil {
@@ -253,6 +259,7 @@ func (e *SysWorks) UpdateTomitState() {
 
 		}
 	}
+	e.Log.Debug("执行铸币状态更新-End")
 }
 
 // 铸币
@@ -264,38 +271,51 @@ func (e *SysWorks) sendContractToken(TokenGroup models.SysWorksToMitGroup, GasPr
 		_, _, _, PathCid := e.PushIpfs(info.Group)
 		WorksIds := strings.Replace(strings.Trim(fmt.Sprint(info.WorksId), "[]"), " ", ",", -1)
 		if err != nil {
-			return hash, err
+			return hash, errors.New("节点连接失败")
 		}
 		client := ethclient.NewClient(rpcDial)
 		balance, err := client.BalanceAt(context.Background(), BaseAddress, nil)
-		e.Log.Debugf("以太坊余额:%v \r\n", balance)
+		e.Log.Debugf("{%s}余额:%v ,节点{%s}\r\n", BaseAddress, balance, info.RpcUrl)
 		if err != nil {
-			return hash, err
+			return hash, errors.New(fmt.Sprintf("{%s}余额:%v ,节点{%s} 报错:{%v}\r\n", BaseAddress, balance, info.RpcUrl, err.Error()))
 		}
 		ContractClient, _ := contract.NewHemaNft(common.HexToAddress(ContractAddress), client)
 		//获取签名
 		auth, err := bind.NewKeyedTransactorWithChainID(Private, big.NewInt(int64(info.ChainId)))
 		//gasPrice获取
 		//gasPrice, err := client.SuggestGasPrice(context.Background())
-		//if err != nil {
-		//	return hash, err
-		//}
-		auth.GasPrice = big.NewInt(int64(1000000000 * GasPrice))
+		if err != nil {
+			return hash, errors.New("签名获取失败")
+		}
+		auth.GasPrice = big.NewInt(int64(1000000000 * (GasPrice * 1.5)))
+
 		e.Log.Debugf("GasPrice:%v", auth.GasPrice)
 		e.Log.Debugf("GasLimit:%v", auth.GasLimit)
+
 		tx, err := ContractClient.MintBatch(auth, info.AdminAddress, info.TokenId, info.TokenAmount, nil)
-		tx1, err1 := ContractClient.SetBaseURI(auth, fmt.Sprintf("ipfs://%v/", PathCid.Hash)) //更新主目录cid
-		var SqlHash = tx.Hash().Hex()
-		if err != nil && err1 != nil {
+
+		if err != nil {
 			e.Log.Errorf("转账结果:%s \r\n", err.Error())
-			e.Orm.Raw(fmt.Sprintf("update %s set tx_hash='%s',is_sync=1 where id in (%s)", TokenGroup.TableName(), SqlHash, WorksIds)).Scan(nil)
-			return hash, err
+			//e.Orm.Raw(fmt.Sprintf("update %s set tx_hash='%s',is_sync=1 where id in (%s)", TokenGroup.TableName(), tx.Hash().Hex(), WorksIds)).Scan(nil)
+			return hash, errors.New("铸币失败" + err.Error())
 			continue
 		}
-		hash = append(hash, models.SysWorksToMitReturn{Tx: SqlHash, BlockUrl: info.BlockUrl, Title: "点击查看铸币hash"})
+		auth.Nonce = big.NewInt(int64(tx.Nonce()) + 1)
+		e.Log.Errorf("Mintauth-Nonce:%s \r\n", tx.Nonce())
+
+		tx1, err1 := ContractClient.SetBaseURI(auth, fmt.Sprintf("ipfs://%v/", PathCid.Hash)) //更新主目录cid
+
+		if err1 != nil {
+			e.Log.Errorf("修改Cid结果:%s \r\n", err1.Error())
+			return hash, errors.New("修改Cid失败" + err1.Error())
+			//continue
+		}
+		e.Log.Errorf("Cidauth-Nonce:%v \r\n", tx1.Nonce())
+
+		hash = append(hash, models.SysWorksToMitReturn{Tx: tx.Hash().Hex(), BlockUrl: info.BlockUrl, Title: "点击查看铸币hash"})
 		hash = append(hash, models.SysWorksToMitReturn{Tx: tx1.Hash().Hex(), BlockUrl: info.BlockUrl, Title: "点击查看目录Cid更新 Hash"})
 
-		e.Orm.Raw(fmt.Sprintf("update %s set tx_hash='%s',is_sync=1 where id in (%s)", TokenGroup.TableName(), SqlHash, WorksIds)).Scan(nil)
+		e.Orm.Raw(fmt.Sprintf("update %s set tx_hash='%s',is_sync=1 where id in (%s)", TokenGroup.TableName(), tx.Hash().Hex(), WorksIds)).Scan(nil)
 	}
 	return hash, err
 }
