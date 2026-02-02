@@ -170,6 +170,7 @@ func (e *SysWorks) Update(c *dto.SysWorksUpdateReq, p *actions.DataPermission) e
 // Remove 删除SysWorks
 func (e *SysWorks) Remove(d *dto.SysWorksDeleteReq, p *actions.DataPermission) error {
 	var data models.SysWorks
+	var contracttoken models.SysContractToken
 	//检查是否有子项
 	var count int64
 	e.Orm.Raw("select count(*) from sys_contract_token where is_del = TRUE and works_id in (?)", d.GetId()).Count(&count)
@@ -182,6 +183,14 @@ func (e *SysWorks) Remove(d *dto.SysWorksDeleteReq, p *actions.DataPermission) e
 		).Delete(&data, d.GetId())
 	if err := db.Error; err != nil {
 		e.Log.Errorf("Service RemoveSysWorks error:%s \r\n", err)
+		return err
+	}
+	e.Orm.Model(&contracttoken).
+		Scopes(
+			actions.Permission(contracttoken.TableName(), p),
+		).Delete(&contracttoken, "works_id = ?", d.GetId())
+	if err := db.Error; err != nil {
+		e.Log.Errorf("Service RemoveSysWorksTokens error:%s \r\n", err)
 		return err
 	}
 	if db.RowsAffected == 0 {

@@ -98,6 +98,7 @@ func (e *SysContractToken) Remove(d *dto.SysContractTokenDeleteReq, p *actions.D
 		Scopes(
 			actions.Permission(data.TableName(), p),
 		).Delete(&data, d.GetId())
+
 	if err := db.Error; err != nil {
 		e.Log.Errorf("Service RemoveSysContractToken error:%s \r\n", err)
 		return err
